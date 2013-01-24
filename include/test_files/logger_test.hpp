@@ -3,19 +3,19 @@
 //
 // Author: Jarret Shook
 //
-// Module: array_test.hpp
+// Module: logger_test.hpp
 //
 // Modifications:
 //
-// 17-Jan-12 : Version 1.0: Created
+// 24-Jan-12 : Version 1.0: Created
 //
 // Timeperiod: ev6
 //
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __ARRAY_TEST_HPP__
-#define __ARRAY_TEST_HPP__
+#ifndef __LOGGER_TEST_HPP__
+#define __LOGGER_TEST_HPP__
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,13 +28,13 @@
 
 #include <stdexcept>
 
-#include "array.hpp"
+#include "logger.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // global functions
 ///////////////////////////////////////////////////////////////////////////////
 
-void test_array();
+void test_logger();
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,21 +46,17 @@ namespace test {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-template < typename __Type > class array_test
+class logger_test
 {
-
-   private:   // constants
-
-      const static std::size_t SIZE = 1000;
 
    private:   // member variables
 
-      ev6::el::array< int, SIZE >* _m_array;
+      ev6::el::logger< std::ostream >* _m_logger;
  
    public:   // Constructor | Destructor
 
-      array_test() : _m_array(0) { }
-      ~array_test() { _tidy(); }
+      logger_test() : _m_logger(0) { }
+      ~logger_test() { _tidy(); }
 
    public:   // overloaded operators
 
@@ -68,11 +64,11 @@ template < typename __Type > class array_test
 
    private:   // helper functions
 
-      void _create_array() { _m_array = new ev6::el::array< int, SIZE >(); }
+      void _create_logger() { _m_logger = new ev6::el::logger< std::ostream >(std::cout); }
 
-      bool _created() { return _m_array != 0; }
+      bool _created() { return _m_logger != 0; }
 
-      void _delete_array() { delete _m_array; }
+      void _delete_logger() { delete _m_logger; _m_logger = 0; }
 
       void _test()
       {
@@ -81,15 +77,9 @@ template < typename __Type > class array_test
          {
             _test_constructor();
             _test_destructor();
-            _test_at();
-            _test_begin();
-            _test_clear();
-            _test_empty();
-            _test_end();
-            _test_max_size();
-            _test_size();
-            _test_to_c_array();
+            _test_write();
          }
+
          catch( std::exception& _Exception )
          {
             std::cout << "Exception thrown...  Exiting the program." << std::endl;
@@ -102,25 +92,26 @@ template < typename __Type > class array_test
       void _test_constructor() 
       {
 
-         if (!_created()) _create_array();
-
-         ev6::el::array< int, 3 > _Array = { 0, 1, 2 };
+         if (!_created()) _create_logger();
 
       }
 
-      void _test_destructor() { }
-      void _test_at() { }
-      void _test_begin() { }
-      void _test_clear() { }
-      void _test_empty() { }
-      void _test_end() { }
-      void _test_max_size() { }
-      void _test_size() { }
-      void _test_to_c_array() { }
+      void _test_destructor() { _tidy(); }
+      
+      void _test_write() 
+      { 
 
-      void _tidy() { if (_created()) _delete_array(); }
+         if (!_created()) _create_logger();
 
-};   // end of class array_test
+         (*_m_logger).operator<<("Hello this should log this sentence");
+
+         _m_logger->endl();
+
+      }
+   
+      void _tidy() { if (_created()) _delete_logger(); }
+
+};   // end of class logger_test
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,7 +123,7 @@ template < typename __Type > class array_test
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void test_array() { ev6::el::test::array_test<int> _Test; _Test(); }
+void test_logger() { ev6::el::test::logger_test _Test; _Test(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

@@ -79,7 +79,7 @@ template <typename __Type, std::size_t __Size> class array
       size_type size() const { return __Size; }
       __Type* to_c_array() { return _m_data; }
 
-   public:   /*   member operators   */
+   public:   //   member operators
 
        reference operator[] (size_type _Offset) { return _m_data[_Offset]; }
        const_reference operator[] (size_type _Offset) const { return _m_data[_Offset]; }
