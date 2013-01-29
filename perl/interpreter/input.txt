@@ -1,0 +1,21 @@
+routine print_hello_world()
+{
+
+   print "Hello World" # simple print statement
+   print "\n"; # new line
+
+}
+
+routine declare_and_iterate_over_an_array()
+{
+
+   @arr = (1 .. 10);
+
+   foreach $num(@arr)
+   {
+
+      print $num . "\n";
+
+   }
+
+}
