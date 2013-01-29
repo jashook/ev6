@@ -30,7 +30,20 @@ use Line;
 use Queue;
 use Stack;
 
+#################################################################################
 ################################################################################
+
+sub brace_error
+{
+
+}
+
+sub parentheses_error
+{
+
+}
+
+###############################################################################
 ################################################################################
 
 open (my $_File, "<", "$ARGV[0]") if defined $ARGV[0];
@@ -41,7 +54,7 @@ my $_Queue = new Queue;
 
 foreach my $_Temp (@_Lines)
 {
-   my @_Words = split(/ /, $_Temp);
+   my @_Words = split(/[ ,(,),{,} ]/, $_Temp);
 
    my $_Count = 0;
 
@@ -54,37 +67,50 @@ foreach my $_Temp (@_Lines)
 }
 
 my $_ParenthesesStack = new Stack;
+my $_BraceStack = new Stack;
 
-for ($i = 0, $_Size = $_Queue->size(); $i < $_Size; ++$i)
+'''
+for (my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
 {
    my $_Word = $_Queue->pop();
 
    if (index($_Word->{ m_line }, '(') != -1)
    {
-      $_ParenthesesStack.push($Word);
+      $_ParenthesesStack->push($_Word);
    }
 
    elsif (index($_Word->{ m_line }, ')') != -1)
    {
       my $_Line = $_ParenthesesStack.pop()->{ m_line_number };
       
-      if ($_Line != $_Word->{ m_line_number }) parentheses_error($Line, $_Word->{ m_line_number });
+      if ($_Line != $_Word->{ m_line_number }) 
+      {
+      
+         &parentheses_error($_Line, $_Word->{ m_line_number });
+
+      }
 
    }
    
    elsif (index($_Word->{ m_line }, '{') != -1)
    {
-      $_BraceStack.push($Word);
+      $_BraceStack->push($_Word);
    }
 
    elsif (index($_Word->{ m_line }, '}') != -1)
    {
       my $_Line = $_BraceStack.pop()->{ m_line_number };
 
-      if ($_Line != $_Word->{ m_line_number }) brace_error($_Line, $_Word->{ m_line_number });
+      if ($_Line != $_Word->{ m_line_number }) 
+      {
+
+         &brace_error($_Line, $_Word->{ m_line_number });
+
+      }
+
    }
    
 }
-
+'''
 ################################################################################
 ################################################################################
