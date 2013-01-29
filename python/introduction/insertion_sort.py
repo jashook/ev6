@@ -27,16 +27,24 @@ def insertion_sort(s):
    Output: sorted list
    """
 
-   for i in range(len(s)):
+   arr = range(len(s));
 
-      j = i;
+   del arr[0];
+
+   for i in arr:
+
+      j = i
+      
+      data = s[j]
 
       while (j > 0 and s[j] < s[j-1]):
 
-         s[j], s[j] = s[j-1], s[j-1]
+         s[j] = s[j - 1]
    
-         --j;
-   
+         s[j-1] = data
+      
+         j = j - 1;   
+
    return s
 
 #if __name__ == "__main__":
