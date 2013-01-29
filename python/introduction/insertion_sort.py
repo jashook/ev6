@@ -16,24 +16,22 @@
 ################################################################################
 ################################################################################
 
-def selection_sort(s):
+def insertion_sort(s):
    """
    Input: list s to be sorted
    Output: sorted list
    """
 
-   for i in range(len(2)):
+   for i in range(len(s)):
 
-      # don't name min since reserved word
-      minidx = i;
+      j = i;
 
-      for j in range(i+1, len(s)):
+      while ((j>0) and (s[j] < s[j-i]))
 
-         if s[j] < s[minidx]:
-            minidx = j;
-
-         s[i], s[minidx] = s[minidx], s[i]
-
+         s[j], s[j-1] = s[j-1], s[j]
+   
+         ++j;
+   
    return s
 
 
