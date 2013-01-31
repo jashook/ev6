@@ -1,0 +1,94 @@
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// Module:        ct_allocator
+//
+// Version:       1.0
+//
+// Modifications: 
+//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef  __CT_ALLOCATOR_HPP__
+#define __CT_ALLOCATOR_HPP__
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#include "array.hpp"
+#include "node.hpp"
+#include "bounded_queue.hpp"
+#include "alloc_node.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+namespace ev4 {
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename __Type, std::size_t __Size> class ct_allocator
+{
+   public:   // type definitions and constants
+
+      typedef const __Type*  const_pointer;
+      typedef const __Type&  const_reference;
+      typedef std::ptrdiff_t difference_type;
+      typedef __Type*        pointer;
+      typedef __Type&        reference;
+      typedef std::size_t    size_type;
+      typedef __Type         value_type;
+
+   private:   // member variables
+
+      bounded_queue<size_type, __Size> _m_indexes;
+      array<alloc::alloc_node<__Type>, __Size> _m_list;
+
+   public:   // member functions
+
+      alloc::alloc_node<__Type>* get_type() { return _get_type(); }
+      void return_type(alloc::alloc_node<__Type>* _Node) { _return_type(_Node); }
+
+   public:   // constructor | destructor
+
+      ct_allocator() { _ctor(); }
+
+      ~ct_allocator() { _dtor(); }
+
+   private:   // helper functions
+
+      void _ctor() 
+      { 
+         for (size_type i = 0; i < __Size; ++i) _m_indexes.push(i); 
+      }
+
+      void _dtor() { }
+
+      alloc::alloc_node<__Type>* _get_type()
+      {
+         if (_m_indexes.empty()) return NULL;
+
+         size_type _Index = _m_indexes.pop();
+         _m_list[_Index].m_index = _Index;
+         
+         return &(_m_list[_Index]);
+      }
+
+      void _return_type(alloc::alloc_node<__Type>* _Node)
+      {
+         _m_indexes.push(_Node->m_index);
+      }
+
+};   // end of class ct_allocator
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+}   // end namespace(ev4)
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#endif   // __CT_ALLOCATOR_HPP__

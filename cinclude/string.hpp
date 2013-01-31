@@ -1,0 +1,92 @@
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// Module:        string
+//
+// Version:       1.0
+//
+// Modifications: 
+//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef  __STRING_HPP__
+#define __STRING_HPP__
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#include "base.hpp"
+#include "vector.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+namespace ev4 {
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class string
+{
+   public:   // type definitions and constants
+
+      typedef vector<char>::value_type value_type;
+      typedef vector<char>::size_type size_type;
+      typedef vector<char>::pointer pointer;
+      typedef vector<char>::reference reference;
+      typedef vector<char>::const_pointer const_pointer;
+      typedef vector<char>::const_reference const_reference;
+      typedef vector<char>::difference_type difference_type;
+      typedef vector<char>::iterator iterator;
+      typedef vector<char>::const_iterator const_iterator;
+
+   private:   // member variables
+
+      vector<char> _m_data;
+      std::string s;
+
+   public:   // member functions
+
+      void append(char _Rhs) { _append(_Rhs); }
+      void append(string& _Rhs) { _append(_Rhs); }
+
+      std::size_t size() { return _size(); }
+
+   public:   // member operators
+
+      void operator+=(char _Rhs) { _append(_Rhs); }
+      void operator+=(string& _Rhs) { _append(_Rhs); }
+      string& operator=(string& _Rhs) { if (this != &_Rhs) _m_data = _Rhs._m_data; return *this; }
+
+   public:   // constructor | destructor
+
+      string() { _ctor(); }
+
+      ~string() { _dtor(); }
+
+
+   private:   // helper functions
+
+      void _append(char _Rhs) { _m_data.push_back(_Rhs); }
+      void _append(string& _Rhs) { for (std::size_t i = 0; i < _Rhs.size(); ++i) _m_data.push_back(_Rhs[i]); }
+
+      void _ctor() { }
+
+      void _dtor() { }
+
+      std::size_t _size() { return _m_data.size(); }
+
+
+
+};   // end of class string
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+}   // end namespace(ev4)
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#endif   // __STRING_HPP__
