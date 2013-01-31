@@ -53,7 +53,7 @@ sub pop {
 
    my ($_Self) = @_;
 
-   return shift($_Self->{ m_array });   
+   return shift(@{$_Self->{ m_array }});   
 
 }
 
@@ -61,7 +61,7 @@ sub print {
 
    my ($_Self) = @_;
 
-   print $_Self->{ m_array };
+   print @{$_Self->{ m_array }};
 
 }
 
@@ -69,14 +69,14 @@ sub push {
    
    my ($_Self, $_Data) = @_; 
 
-   return push($_Self->{ m_array }, $_Data);
+   return push(@{$_Self->{ m_array }}, $_Data);
 }
 
 sub size {
 
    my ($_Self) = @_;
 
-   return scalar($_Self->{ m_array });
+   return scalar(@{$_Self->{ m_array }});
 
 }
 

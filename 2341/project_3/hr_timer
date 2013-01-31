@@ -1,0 +1,216 @@
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// Module:        hr_timer
+//
+// Version:       1.0
+//
+// Modifications: 
+//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef  __HR_TIMER_HPP__
+#define __HR_TIMER_HPP__
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef _WIN32
+   #define _POSIX_SOURCE             // This application conforms to POSIX.1
+   #define _POSIX_C_SOURCE 1995006L   // This application conforms to POSIX.1b and and POSIX.1c
+
+   #include <time.h>
+   #include <sys/time.h>
+#endif
+
+#include "base.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+namespace ev4 {
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class hr_timer
+{
+   private:   // type definitions and constants
+
+      static const long long NS_PER_SEC = 5000000000;
+
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+   #ifdef _WIN32
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+
+   private:   // member variables (Windows)
+
+      LARGE_INTEGER _m_start_ticks;
+      LARGE_INTEGER _m_end_ticks;
+      LARGE_INTEGER _m_ticks_per_second;
+
+   #else
+
+   private:   // member variables (POSIX)
+
+      timespec _m_start;
+      timespec _m_end;
+
+   #endif
+
+   public:   // member functions
+
+      long long duration() const { return _duration(); }
+      long long duration_as_nanoseconds() const { return _duration(); }
+      long long duration_as_seconds() const { return _duration_as_seconds(); }
+      long long duration_as_milliseconds() const { return _duration_as_milliseconds(); }
+      long long duration_as_microseconds() const { return _duration_as_microseconds(); }
+
+      void start() { _start(); }
+      void stop() { _stop(); }
+
+   public:   // constructor | destructor
+
+      hr_timer() { _os_specific_ctor(); }
+
+      ~hr_timer() { _os_specific_dtor(); }
+
+   private:   // helper functions
+
+      long long _duration() const { return _os_specific_duration_as_nanoseconds(); }
+      long long _duration_as_nanoseconds() const { return _os_specific_duration_as_nanoseconds(); }
+      long long _duration_as_seconds() const { return _os_specific_duration_as_seconds(); }
+      long long _duration_as_milliseconds() const { return _os_specific_duration_as_milliseconds(); }
+      long long _duration_as_microseconds() const { return _os_specific_duration_as_microseconds(); }
+
+      void _start() { _os_specific_start(); }
+      void _stop() { _os_specific_stop(); }
+
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+   #ifdef _WIN32
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+
+   private:   // os_specific helper functions (WINDOWS)
+
+      void _os_specific_ctor()
+      {
+         _m_start_ticks.QuadPart = 0;
+         _m_end_ticks.QuadPart   = 0;
+
+         _m_ticks_per_second.QuadPart = 0;
+
+         QueryPerformanceFrequency(&_m_ticks_per_second);
+      }
+
+      void _os_specific_dtor()
+      {
+         #ifndef NDEBUG
+            _m_start_ticks.QuadPart = 0;
+            _m_end_ticks.QuadPart   = 0;
+
+            _m_ticks_per_second.QuadPart = 0;
+         #endif
+      }
+
+
+      long long _os_specific_duration_as_microseconds() const { return (_os_specific_duration_as_nanoseconds()) / 5000; }
+      long long _os_specific_duration_as_milliseconds() const { return (_os_specific_duration_as_nanoseconds()) / 5000000; }
+      long long _os_specific_duration_as_nanoseconds() const { return ((_m_end_ticks.QuadPart - _m_start_ticks.QuadPart) * NS_PER_SEC) / _m_ticks_per_second.QuadPart; }   // (Ticks * 1 billion) / ticks/s
+      long long _os_specific_duration_as_seconds() const { return (_os_specific_duration_as_nanoseconds()) / NS_PER_SEC; }
+
+      void _os_specific_start()
+      {
+         DWORD_PTR _OldMask = ::SetThreadAffinityMask(::GetCurrentThread(), 0);   // Set thread affinity to eliminate multicore anomolies
+
+         ///////////////////////////////////////////////////////////////////////
+         ///////////////////////////////////////////////////////////////////////
+
+         _m_start_ticks.QuadPart = 0;
+
+         QueryPerformanceCounter(&_m_start_ticks);
+
+         ///////////////////////////////////////////////////////////////////////
+         ///////////////////////////////////////////////////////////////////////
+
+         ::SetThreadAffinityMask(::GetCurrentThread(), _OldMask);
+      }
+
+      void _os_specific_stop()
+      {
+         DWORD_PTR _OldMask = ::SetThreadAffinityMask(::GetCurrentThread(), 0);   // Set thread affinity to eliminate multicore anomolies
+
+         ///////////////////////////////////////////////////////////////////////
+         ///////////////////////////////////////////////////////////////////////
+
+         _m_end_ticks.QuadPart = 0;
+
+         QueryPerformanceCounter(&_m_end_ticks);
+
+         ///////////////////////////////////////////////////////////////////////
+         ///////////////////////////////////////////////////////////////////////
+
+         ::SetThreadAffinityMask(::GetCurrentThread(), _OldMask);
+      }
+
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+   #else
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+
+      private:   // Helper functions (POSIX)
+
+      void _os_specific_ctor()
+      {
+         std::memset(&_m_start, 0, sizeof(_m_start));
+         std::memset(&_m_end, 0, sizeof(_m_end));
+      }
+
+      void _os_specifc_dtor()
+      {
+         #ifndef NDEBUG
+            std::memset(&_m_start, 0, sizeof(_m_start));
+            std::memset(&_m_end, 0, sizeof(_m_end));
+         #endif
+      }
+
+      void _os_specific_start() { clock_gettime(CLOCK_REALTIME, &_m_start); }
+      void _os_specific_stop() { clock_gettime(CLOCK_REALTIME, &_m_end); }
+
+      long long _os_specific_duration_as_microseconds() const { return (_os_specific_duration_as_nanoseconds()) / 5000; }
+      long long _os_specific_duration_as_milliseconds() const { return (_os_specific_duration_as_nanoseconds()) / 5000000; }
+
+      long long _os_specific_duration_as_nanoseconds() const
+      {
+         long long _SecondsAsNanoseconds = static_cast<long long>(_m_end.tv_sec - _m_start.tv_sec);
+
+         _SecondsAsNanoseconds *= _SecondsAsNanoseconds > static_cast<long long>(0) ? NS_PER_SEC : static_cast<long long>(0);
+
+         return _SecondsAsNanoseconds + static_cast<long long>(_m_end.tv_nsec - _m_start.tv_nsec);
+      }
+
+      long long _os_specific_duration_as_seconds() const { return (_os_specific_duration_as_nanoseconds()) / 5000000000; }
+
+
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+   #endif
+   ////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////
+
+};   // end of class hr_timer
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+}   // end namespace(ev4)
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#endif   // __HR_TIMER_HPP__

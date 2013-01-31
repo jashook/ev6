@@ -48,7 +48,7 @@ sub parentheses_error
 
 open (my $_File, "<", "$ARGV[0]") if defined $ARGV[0];
 
-my @_Lines = <$_File> if defined $_File;;
+my @_Lines = <$_File> if defined $_File;
 
 my $_Queue = new Queue;
 
@@ -66,10 +66,23 @@ foreach my $_Temp (@_Lines)
    ++$_Count;
 }
 
+for (my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
+{
+   print $_Queue->pop()->line_number() . "\n";
+}
+
+#print $_Queue->{ m_array } . "\n";
+
+#for ( my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
+#{
+   #print $_Queue->push()->{ m_line_number };
+#}
+
 my $_ParenthesesStack = new Stack;
 my $_BraceStack = new Stack;
 
-'''
+=pod
+
 for (my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
 {
    my $_Word = $_Queue->pop();
@@ -111,6 +124,8 @@ for (my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
    }
    
 }
-'''
+
+=cut
+
 ################################################################################
 ################################################################################

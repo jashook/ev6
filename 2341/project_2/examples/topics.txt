@@ -1,0 +1,7 @@
+Pinters
+ - Dangling Pointers
+ - Memory Leaks
+ - Pointer References
+
+New vs New[]
+Delete vs Delete[]

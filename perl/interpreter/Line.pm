@@ -33,6 +33,8 @@ package Line;
 sub new {
  
    my (@_Arr) = $_;
+
+   print @_Arr[0];
   
    my $_Self = {
 
