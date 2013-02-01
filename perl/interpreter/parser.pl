@@ -52,15 +52,33 @@ my @_Lines = <$_File> if defined $_File;
 
 my $_Queue = new Queue;
 
+my $_Count = 1; # start on line 1
+
 foreach my $_Temp (@_Lines)
 {
-   my @_Words = split(/[ ,(,),{,} ]/, $_Temp);
+   my $_CommentIndex = index($_Temp, '#');
 
-   my $_Count = 0;
+   if ($_CommentIndex != -1) 
+   {
+      print $_CommentIndex . "\n";
+
+      print length($_Temp) . "\n";
+      
+      $_Temp = substr(0, $_CommentIndex);
+   }
+
+   $_Temp =~ s/^\s*(\S*(?:\s+\S+)*)\s*$/$1/;
+
+   my @_Words = split(/\s+/, $_Temp);
 
    foreach my $_Word (@_Words) 
    {
-      $_Queue->push(new Line($_Word, $_Count));
+      my $_Line = new Line;
+
+      $_Line->line($_Word);
+      $_Line->line_number($_Count);
+
+      $_Queue->push($_Line);
    }
 
    ++$_Count;
@@ -68,7 +86,9 @@ foreach my $_Temp (@_Lines)
 
 for (my $i = 0, my $_Size = $_Queue->size(); $i < $_Size; ++$i)
 {
-   print $_Queue->pop()->line_number() . "\n";
+   my $_Word = $_Queue->pop();
+
+   #print $_Word->line() . " " . $_Word->line_number() . "\n";
 }
 
 #print $_Queue->{ m_array } . "\n";
