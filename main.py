@@ -84,7 +84,16 @@ def exhaustiveScheduling(movies):
     # to enumerate all subsets of movies
     ###############################################################
 
-    
+    _Subsets = subsets(movies)
+
+    j = 0
+    sMax = 0
+
+    for i in range(len(_Subsets)):
+        if isMutuallyNonOverlapping(_Subsets[i]) and (len (_Subsets[i]) > j):
+            j = len(_Subsets[i]); sMax = _Subsets[i]
+
+    return sMax
 
 def earliestFinish(movies):
     """
@@ -138,9 +147,9 @@ def checkOverlap(start1,end1,start2,end2):
 
 def isMutuallyNonOverlapping(_List):
 
-    startTimes = [ (_List[m][0]) ] for m in _List ]
-    endTimes = [ (_List[n][1]) ] for n in _List ]
-    titles = [ (i) for i in _List ]
+    startTimes = [ (movieTimes[m][0]) for m in _List ]
+    endTimes = [ (movieTimes[n][1]) for n in _List ]
+    titles = _List
 
     for i in range(len(startTimes)):
         for j in range(i+1, len (startTimes)):
@@ -177,8 +186,15 @@ if __name__=='__main__':
 
     print "################################################################################"
     print "################################################################################"
-    
+    print '\n'
 
+    print earliestJobFirst(movieTimes)
+
+    print '\n'
+
+    print exhaustiveScheduling(movieTimes)
+
+    print '\n'
 
     print "################################################################################"
     print "################################################################################"
