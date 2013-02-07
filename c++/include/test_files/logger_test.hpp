@@ -22,13 +22,10 @@
 
 #include <iostream>
 #include <fstream>
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 #include <stdexcept>
 
 #include "logger.hpp"
+#include "test_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // global functions
@@ -52,6 +49,7 @@ class logger_test
    private:   // member variables
 
       ev6::el::logger< std::ostream >* _m_logger;
+      ev6::el::test_helper< std::ostream > _m_helper;
  
    public:   // Constructor | Destructor
 
@@ -92,20 +90,50 @@ class logger_test
       void _test_constructor() 
       {
 
+         _m_helper.set_title("Test logger constructor");
+         _m_helper.print_entry();
+
          if (!_created()) _create_logger();
+
+         _m_helper.print_exit();
 
       }
 
-      void _test_destructor() { _tidy(); }
+      void _test_destructor()
+      { 
+   
+         _m_helper.set_title("Test logger destructor");
+         _m_helper.print_entry();
+
+         _tidy();
+
+         _m_helper.print_exit();
+
+      }
       
       void _test_write() 
       { 
+
+         _m_helper.set_title("Test logger write");
+         _m_helper.print_entry(ev6::el::MICROSECONDS);
 
          if (!_created()) _create_logger();
 
          (*_m_logger).operator<<("Hello this should log this sentence");
 
          _m_logger->endl();
+
+         std::ofstream _File("output.txt");
+
+         ev6::el::logger< std::ofstream > _Logger(_File);
+
+         _Logger << "Hello this should log this sentence";
+
+         _Logger.endl();
+
+         _File.close();
+
+         _m_helper.print_exit();
 
       }
    
@@ -128,4 +156,4 @@ void test_logger() { ev6::el::test::logger_test _Test; _Test(); }
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif   // __ARRAY_TESTER__
+#endif   // __LOGGER_TEST_HPP__
