@@ -21,6 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "array_test.hpp"
+#include "avl_tree_test.hpp"
 #include "logger_test.hpp"
 #include "test_helper_test.hpp"
 
@@ -38,6 +39,7 @@ int main()
       test_array();
       test_logger();
       // test_helper_test(); // assumed to work correctly
+      test_avl_tree();
 
       _Helper.print_exit();
 

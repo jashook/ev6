@@ -109,7 +109,22 @@ template <typename __Type, std::size_t __Size = 0> class linked_list
 
       void assign(const mta::raw_list<__Type>& _Rhs) { _m_head = _Rhs.get_m_head(); _m_tail = _Rhs.get_m_tail(); }
 
-      void _ctor() { _m_head = new _node();  _m_tail = new _node(); _m_head->m_next = _m_tail; _m_head->m_prev = NULL; _m_tail->m_prev =  _m_head; _m_tail->m_next = NULL; }
+      void _ctor() 
+      { 
+         
+         _m_head = new _node();  
+
+         _m_tail = new _node(); 
+
+         _m_head->m_next = _m_tail; 
+
+         _m_head->m_prev = NULL; 
+
+         _m_tail->m_prev = _m_head; 
+
+         _m_tail->m_next = NULL; 
+
+      }
 
       void _copy(const linked_list<__Type>& _Rhs)
       {
@@ -119,7 +134,27 @@ template <typename __Type, std::size_t __Size = 0> class linked_list
          while(_It != _End) { _Rhs.push_back(*_It); ++_It; }
       }
 
-      void _dtor() { _node* _It = _m_head->m_next; while (_It != _m_tail) { _node* _Temp = _It; _It = _It->m_next; delete _Temp; } delete _m_head; delete _m_tail; }
+      void _dtor() 
+      { 
+
+         _node* _It = _m_head->m_next; 
+
+         while (_It != _m_tail) 
+         { 
+
+            _node* _Temp = _It; 
+
+            _It = _It->m_next; 
+
+            delete _Temp; 
+
+         } 
+
+         delete _m_head; 
+
+         delete _m_tail; 
+
+      }
       const __Type _get(std::size_t _Index) { iterator _It = _go_to(_Index); return *_It; }
       __Type* _get_back() { return _m_tail->m_prev->m_data; }
       __Type* _get_front() { return _m_head->m_next->m_data; }

@@ -49,8 +49,8 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
 
       typedef __Value value_type;
       typedef std::size_t size_type;
-      typedef __Value* pointer;
-      typedef __Value& reference;
+      typedef avl_node< __Key, __Value >* pointer;
+      typedef avl_node< __Key, __Value >& reference;
       typedef const __Value* const_pointer;
       typedef const __Value& const_reference;
       typedef std::ptrdiff_t difference_type;
@@ -73,8 +73,8 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
 
    public:   // member functions
 
-      iterator begin() { return iterator(_m_left_leaf_node); }
-      iterator end() { return iterator(_m_right_leaf_node->m_right_child); }
+      iterator begin() { return iterator(_begin()); }
+      iterator end() { return iterator(_end()); }
       bool contains(__Key& _Key) { return _contains(_Key); }
       bool contains(const __Key& _Key) { return _contains(const_cast<__Key&>(_Key)); }
       void insert(__Key& _Key, __Value& _Data) { _insert(_Key, _Data); }
@@ -94,6 +94,11 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
          return (_Sum == -2 || _Sum == 2);
       }
 
+      pointer _begin()
+      {
+         return _m_left_leaf_node;
+      }
+
       bool _contains(__Key& _Key)
       {
          avl_node<__Key, __Value>* _Parent = _descend(_Key);
@@ -108,7 +113,7 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
          avl_node<__Key, __Value>* _DescendingPtr = _m_root;
          avl_node<__Key, __Value>* _DescendingParentPtr = _DescendingPtr;
 
-         while (_DescendingPtr != 0)
+         while (_DescendingPtr != 0 && _DescendingPtr != _m_right_leaf_node)
          {
             if (_Key < _DescendingPtr->m_key)
             {
@@ -148,6 +153,11 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
          _rotate_with_right_child(_Node);
       }
 
+      pointer _end()
+      {
+         return _m_right_leaf_node;
+      }
+
       std::pair<int, int> _height(avl_node< __Key, __Value, __Compare >* _Left, avl_node< __Key, __Value, __Compare >* _Right )
       {
          int _LeftHeight, _RightHeight = 0;
@@ -172,7 +182,9 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
          {
             _m_root = new avl_node<__Key, __Value, __Compare>(_Key, _Value);
             _m_left_leaf_node = _m_root;
-            _m_right_leaf_node = _m_root;
+            _m_right_leaf_node = new avl_node<__Key, __Value, __Compare>(_Key, _Value);
+            _m_right_leaf_node->m_parent = _m_root;
+            _m_root->m_right_child = _m_right_leaf_node;
             ++_m_size;
          }
 
@@ -193,7 +205,15 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
                _ParentPtr->m_right_child = new avl_node< __Key, __Value, __Compare >(_Key, _Value, 0, 0, _ParentPtr);
                ++_m_size;
 
-               if (_ParentPtr == _m_right_leaf_node) _m_right_leaf_node = _ParentPtr->m_right_child;
+               if (_ParentPtr == _m_right_leaf_node->m_parent) 
+               {
+            
+                  std::cout << "Changing m_right_child" << std::endl;
+                  _ParentPtr->m_right_child->m_right_child = _m_right_leaf_node;
+                  _m_right_leaf_node->m_parent = _ParentPtr->m_right_child;   
+               
+               }
+
             }
 
             else { /* do nothing if the same */ }
@@ -369,6 +389,8 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
          }
 
          for (int i = 0, _Len = _Stack.size(); i < _Len; ++i) delete _Stack.pop();
+
+         delete _m_right_leaf_node;   // clean up the terminal place holder node
       }
 
 
