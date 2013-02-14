@@ -21,9 +21,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <string>
 
 #include "avl_tree.hpp"
 #include "test_helper.hpp"
@@ -101,7 +104,7 @@ template < typename __Type > class avl_tree_test
 
       bool _created() { return _m_tree != 0; }
 
-      void _delete_avl_tree() { delete _m_tree; }
+      void _delete_avl_tree() { delete _m_tree; delete _m_array; }
 
       void _test()
       {
@@ -166,17 +169,11 @@ template < typename __Type > class avl_tree_test
 
          for (std::size_t i = 0, _Size = _m_array->size(); i < _Size; ++i) _Vector.push_back(_m_array->at(i));
 
-         std::cout << "End: " << *(_Vector.end()) << std::endl;
-
          std::sort(_Vector.begin(), _Vector.end());
 
          for (std::size_t i = 0, _Size = _m_array->size(); i < _Size; ++i) std::cout << _Vector.at(i) << " ";
 
-         std::cout << std::endl;
-
          std::size_t _ErrorCode;
-
-         std::cout << "End: " << *(_Vector.end()) << std::endl;
 
          if (*_Vector.begin() == *(*_m_tree).begin()) _ErrorCode = 0;
          else _ErrorCode = 1;
@@ -193,6 +190,31 @@ template < typename __Type > class avl_tree_test
          _m_helper.set_title("Test avl_tree end");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
+         std::vector<int> _Vector;
+
+         for (std::size_t i = 0; i < _m_array->size(); ++i)
+         {
+
+            bool _Found = false;
+
+            for (std::size_t j = 0; j < _Vector.size(); ++j)
+            {
+
+               if (_Vector[j] == _m_array->at(i)) 
+               {
+
+                  _Found = true;
+
+                  break;
+
+               }
+
+            }
+
+            if (!_Found) _Vector.push_back(_m_array->at(i));
+
+         }
+
          avl_tree<int>::iterator _Iterator = _m_tree->begin();
 
          std::size_t _Count = 0, _ErrorCode = 0;
@@ -205,7 +227,7 @@ template < typename __Type > class avl_tree_test
 
          std::cout << "Size: " << _Count << std::endl;
 
-         if (_Count == SIZE) _ErrorCode = 0;
+         if (_Count == _Vector.size()) _ErrorCode = 0;
          else _ErrorCode = 1;
 
          _m_helper.print_exit(_ErrorCode);
@@ -213,22 +235,94 @@ template < typename __Type > class avl_tree_test
       }
 
       void _test_contains()
-      {
+      {   
+         if (!_created()) _create_avl_tree();
+         
+         _m_helper.set_title("Test avl_tree contains");
+         _m_helper.print_entry(ev6::el::MICROSECONDS);
 
+         bool _Contains = 0, _ErrorCode = 0;
+
+         if (!_m_tree->contains(_m_array->at(445))) _ErrorCode = 1;
+
+         _m_helper.print_exit(_ErrorCode);
       }
 
       void _test_insert()
       {
+
+         if (!_created()) _create_avl_tree();
+         
+         std::size_t _ErrorCode = 0;           
+
+         _m_helper.set_title("Test avl_tree insert");
+         _m_helper.print_entry(ev6::el::MICROSECONDS);
+
+         ev6::el::avl_tree< std::string, int > _StringTree;
+
+         std::string _String = "Jar";
+         std::string _StringTwo = "El";
+
+         int _Data = 100, _Data2 = 200, _Data3 = 300;
+
+         _StringTree.insert(_String, _Data);
+         _StringTree.insert(_StringTwo, 45);
+
+         std::cout << "String Tree: " << std::endl;
+
+         ev6::el::avl_tree< std::string, int >::iterator _It;
+
+         /*while (_It != _StringTree.end())
+         {
+            std::cout << *_It++ << " ";
+         }*/
+
+         std::cout << std::endl;
+
+         ev6::el::avl_tree< int, char* > _CharString;
+
+         char _Arr[80], _Arr2[80];
+         std::strcpy(_Arr, "Jarret");
+         std::strcpy(_Arr2, "Jarret2");
+
+         const char* _El = "Elena";
+
+         _CharString.insert(45, _Arr);
+         _CharString.insert(46, _Arr2);
+         _CharString.insert(_Data, _Arr);
+         _CharString.insert(_Data2, _Arr2);
+
+         _m_helper.print_exit(_ErrorCode);
 
       }
       
       void  _test_print_breadth_first_iteration()
       {
 
+         if (!_created()) _create_avl_tree();
+         
+         std::size_t _ErrorCode = 0;
+
+         _m_helper.set_title("Test avl_tree print breadth first iteration");
+         _m_helper.print_entry(ev6::el::MICROSECONDS);
+
+         //_m_tree->print_breadth_first_iteration();
+ 
+         _m_helper.print_exit(_ErrorCode);
+
       }
       
       void _test_search()
       {
+
+         if (!_created()) _create_avl_tree();
+         
+         std::size_t _ErrorCode = 0;
+
+         _m_helper.set_title("Test avl_tree search");
+         _m_helper.print_entry(ev6::el::MICROSECONDS);
+
+         _m_helper.print_exit(_ErrorCode);
 
       }
 

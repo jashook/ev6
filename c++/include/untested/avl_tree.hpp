@@ -7,6 +7,7 @@
 //
 // Modifications:
 //
+// 13-Feb-13: Version 1.3: Fixed memory leak
 // 21-Jan-13: Version 1.2: Updated to namespace ev6
 // 4-Jan-13 : Version 1.1: Cleaned and added a little more comments 
 // 21-Dec-12: Version 1.0: Created
@@ -71,6 +72,8 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
       avl_tree() : _m_root(0), _m_left_leaf_node(0), _m_right_leaf_node(0), _m_size(0) { }
       avl_tree( __Key& _Key, __Value& _Data ) : _m_root(0), _m_left_leaf_node(0), _m_right_leaf_node(0), _m_size(0) { _insert(_Key, _Data); }
 
+      ~avl_tree() { _tidy(); }
+
    public:   // member functions
 
       iterator begin() { return iterator(_begin()); }
@@ -79,6 +82,8 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
       bool contains(const __Key& _Key) { return _contains(const_cast<__Key&>(_Key)); }
       void insert(__Key& _Key, __Value& _Data) { _insert(_Key, _Data); }
       void insert(const __Key& _Key, const __Value& _Data) { _insert(const_cast<__Key&>(_Key), const_cast<__Value&>(_Data)); }
+      void insert(const __Key& _Key, __Value& _Data) { _insert(const_cast< __Key& >(_Key), _Data); }
+      void insert(__Key& _Key, const __Value& _Data) { _insert(_Key, const_cast< __Value& >(_Data)); }
       void insert(__Key& _Key) { _insert(_Key, _Key); }
       void insert(const __Key& _Key) { _insert(const_cast<__Key&>(_Key), const_cast<__Key&>(_Key)); }
       void print_breadth_first_traversal() { _print_breadth_first_traversal(); }
@@ -216,7 +221,10 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
 
             }
 
-            else { /* do nothing if the same */ }
+            else
+            {
+               return;
+            }
             
             std::pair< int, int > _Heights = _height(_ParentPtr->m_left_child, _ParentPtr->m_right_child);
             _ParentPtr->m_height = _max(_Heights) + 1;
@@ -377,9 +385,9 @@ template <typename __Key, typename __Value = __Key, typename __Compare = std::le
       {
          stack< avl_node< __Key, __Value, __Compare >* > _Stack;
 
-         iterator _Iterator = begin();
+         iterator _Iterator = begin(), _End = end();
 
-         while (_Iterator != 0)
+         while (_Iterator != _End)
          {
             avl_node< __Key, __Value, __Compare >* _Temp = _Iterator.operator->();
 

@@ -36,8 +36,8 @@ int main()
    {
       _Helper.print_entry(ev6::el::MICROSECONDS);   
 
-      test_array();
-      test_logger();
+      //test_array();
+      //test_logger();
       // test_helper_test(); // assumed to work correctly
       test_avl_tree();
 
