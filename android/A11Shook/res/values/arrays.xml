@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <array name="logos">
+        <item>@drawable/sevenup</item>
+        <item>@drawable/aw</item>
+        <item>@drawable/canada_dry</item>
+        <item>@drawable/country_time</item>
+        <item>@drawable/dr_pepper</item>
+        <item>@drawable/grape</item>
+        <item>@drawable/hawaiian_punch</item>
+        <item>@drawable/peach</item>
+        <item>@drawable/rc</item>
+        <item>@drawable/sprite</item>
+        <item>@drawable/sun_drop</item>v
+        <item>@drawable/sunkist</item>
+        <item>@drawable/vanilla</item>
+        <item>@drawable/water</item>
+    </array>
+    
+    <string-array name="logo_names">
+        <item>7up</item>
+        <item>Aw</item>
+        <item>Canada Dry</item>
+        <item>Country Time</item>
+        <item>Dr Pepper</item>
+        <item>Grape</item>
+        <item>Hawaiian Punch</item>
+        <item>Peach</item>
+        <item>Rc</item>
+        <item>Sprite</item>
+        <item>Sun Drop</item>
+        <item>Sunkist</item>
+        <item>Vanilla</item>
+        <item>Water</item>
+    </string-array>
+    
+    <array name="colors">
+        <item>#00A352</item>
+        <item>#FFFF66</item>
+        <item>#CC0000</item>
+    </array>
+    
+</resources>

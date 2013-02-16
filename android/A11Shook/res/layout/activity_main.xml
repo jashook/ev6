@@ -1,0 +1,30 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+    
+    <ImageView 
+        android:id="@+id/logoview"
+        android:layout_height="100dp"
+        android:layout_width="100dp"
+        android:layout_alignParentLeft="true"
+        />
+    <TextView
+        android:id="@+id/logostringview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@id/logoview"
+        android:textSize="30sp"
+        android:layout_marginLeft="15dp"
+        android:layout_centerVertical="true"
+        />"
+
+    <View
+        android:id="@+id/colorview"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentRight="true"
+        />
+    
+</RelativeLayout>
