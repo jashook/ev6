@@ -1,4 +1,4 @@
-FILES := $(wildcard src/*.c)
+FILES := $(wildcard testing/*.c)
 
 INCLUDE := include
 
