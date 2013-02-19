@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000" >
+
+    <com.example.a10shook.customView
+    android:id="@+id/customView"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="388dip"
+    android:background="#FFFFFF"
+    android:gravity="center"
+    />
+    
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="70dip"
+    android:background="#FFFFFF"
+    android:gravity="center"
+    android:layout_alignParentBottom="true" >
+    
+	    <View
+		    android:id="@+id/ColorView"
+		    android:background="#FFFF0000"
+		    android:layout_width="50dip"
+		    android:layout_height="45dip"
+		    android:layout_gravity="center" />
+	    
+	    <Button 
+		    android:layout_width="132dip"
+		    android:layout_height="50dip"
+		    android:text="@string/change_color"
+		    android:onClick="changeColor"/>
+	    
+	    <Button 
+		    android:layout_width="132dip"
+		    android:layout_height="50dip"
+		    android:text="@string/cclear"
+		    android:onClick="clear" />
+        
+    </LinearLayout>
+    
+</RelativeLayout>
