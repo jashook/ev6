@@ -3,7 +3,7 @@
 //
 // Author: Jarret Shook
 //
-// Module: avl_tree_test.hpp
+// Module: bn_tree_test.hpp
 //
 // Modifications:
 //
@@ -14,8 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __AVL_TREE_TEST_HPP__
-#define __AVL_TREE_TEST_HPP__
+#ifndef __BN_TREE_TEST_HPP__
+#define __BN_TREE_TEST_HPP__
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,14 +28,14 @@
 #include <stdexcept>
 #include <string>
 
-#include "avl_tree.hpp"
+#include "bn_tree.hpp"
 #include "test_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // global functions
 ///////////////////////////////////////////////////////////////////////////////
 
-void test_avl_tree();
+void test_bn_tree();
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace test {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-template < typename __Type > class avl_tree_test
+template < typename __Type > class bn_tree_test
 {
 
    private:   // constants
@@ -57,13 +57,13 @@ template < typename __Type > class avl_tree_test
    private:   // member variables
 
       ev6::el::array< int, SIZE >* _m_array;
-      ev6::el::avl_tree< int >* _m_tree;
+      ev6::el::bn_tree< int >* _m_tree;
       ev6::el::test_helper< std::ostream > _m_helper; 
 
    public:   // Constructor | Destructor
 
-      avl_tree_test() : _m_tree(0) { }
-      ~avl_tree_test() { _tidy(); }
+      bn_tree_test() : _m_tree(0) { }
+      ~bn_tree_test() { _tidy(); }
 
    public:   // overloaded operators
 
@@ -71,9 +71,9 @@ template < typename __Type > class avl_tree_test
 
    private:   // helper functions
 
-      void _create_avl_tree() 
+      void _create_bn_tree() 
       {
-         _m_tree = new ev6::el::avl_tree< int >();
+         _m_tree = new ev6::el::bn_tree< int >();
          _m_array = new ev6::el::array< int, SIZE >();
 
          std::size_t _Size, _SecondSize;
@@ -104,7 +104,7 @@ template < typename __Type > class avl_tree_test
 
       bool _created() { return _m_tree != 0; }
 
-      void _delete_avl_tree() { delete _m_tree; delete _m_array; }
+      void _delete_bn_tree() { delete _m_tree; delete _m_array; }
 
       void _test()
       {
@@ -117,7 +117,6 @@ template < typename __Type > class avl_tree_test
             _test_contains();
             _test_end();
             _test_insert();
-            _test_print_breadth_first_iteration();
             _test_search();
          }
          catch( std::exception& _Exception )
@@ -132,12 +131,12 @@ template < typename __Type > class avl_tree_test
       void _test_constructor() 
       {
 
-         _m_helper.set_title("Test avl_tree constructors");
+         _m_helper.set_title("Test bn_tree constructors");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
 
-         ev6::el::avl_tree< int > _Tree;
+         ev6::el::bn_tree< int > _Tree;
 
          _Tree.insert(3);
 
@@ -146,8 +145,8 @@ template < typename __Type > class avl_tree_test
       }
 
       void _test_destructor() 
-      { 
-         _m_helper.set_title("Test avl_tree destructor");
+      {
+         _m_helper.set_title("Test bn_tree destructor");
          _m_helper.print_entry();
 
          _tidy();
@@ -158,12 +157,12 @@ template < typename __Type > class avl_tree_test
       void _test_begin() 
       {
    
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
          
-         _m_helper.set_title("Test avl_tree begin");
+         _m_helper.set_title("Test bn_tree begin");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
 
          std::vector< int > _Vector;
 
@@ -185,9 +184,9 @@ template < typename __Type > class avl_tree_test
       void _test_end() 
       { 
          
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
          
-         _m_helper.set_title("Test avl_tree end");
+         _m_helper.set_title("Test bn_tree end");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
          std::vector<int> _Vector;
@@ -215,7 +214,7 @@ template < typename __Type > class avl_tree_test
 
          }
 
-         avl_tree<int>::iterator _Iterator = _m_tree->begin();
+         bn_tree<int>::iterator _Iterator = _m_tree->begin();
 
          std::size_t _Count = 0, _ErrorCode = 0;
 
@@ -236,9 +235,9 @@ template < typename __Type > class avl_tree_test
 
       void _test_contains()
       {   
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
          
-         _m_helper.set_title("Test avl_tree contains");
+         _m_helper.set_title("Test bn_tree contains");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
          bool _Contains = 0, _ErrorCode = 0;
@@ -251,14 +250,14 @@ template < typename __Type > class avl_tree_test
       void _test_insert()
       {
 
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
          
          std::size_t _ErrorCode = 0;           
 
-         _m_helper.set_title("Test avl_tree insert");
+         _m_helper.set_title("Test bn_tree insert");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
-         ev6::el::avl_tree< std::string, int > _StringTree;
+         ev6::el::bn_tree< std::string, int > _StringTree;
 
          std::string _String = "Jar";
          std::string _StringTwo = "El";
@@ -270,7 +269,7 @@ template < typename __Type > class avl_tree_test
 
          std::cout << "String Tree: " << std::endl;
 
-         ev6::el::avl_tree< std::string, int >::iterator _It, _End;
+         ev6::el::bn_tree< std::string, int >::iterator _It, _End;
 
          _It = _StringTree.begin();
          _End = _StringTree.end();
@@ -282,7 +281,7 @@ template < typename __Type > class avl_tree_test
 
          std::cout << std::endl;
 
-         ev6::el::avl_tree< int, char* > _CharString;
+         ev6::el::bn_tree< int, char* > _CharString;
 
          char _Arr[80], _Arr2[80];
          std::strcpy(_Arr, "Jarret");
@@ -297,7 +296,7 @@ template < typename __Type > class avl_tree_test
 
          std::cout << "Printing tree of char arrays"  << std::endl;
       
-         ev6::el::avl_tree< int, char* >::iterator _It2, _End2;
+         ev6::el::bn_tree< int, char* >::iterator _It2, _End2;
 
          _It2 = _CharString.begin();
          _End2 = _CharString.end();
@@ -313,30 +312,14 @@ template < typename __Type > class avl_tree_test
 
       }
       
-      void  _test_print_breadth_first_iteration()
-      {
-
-         if (!_created()) _create_avl_tree();
-         
-         std::size_t _ErrorCode = 0;
-
-         _m_helper.set_title("Test avl_tree print breadth first iteration");
-         _m_helper.print_entry(ev6::el::MICROSECONDS);
-
-         _m_tree->print_breadth_first_traversal();
- 
-         _m_helper.print_exit(_ErrorCode);
-
-      }
-      
       void _test_search()
       {
 
-         if (!_created()) _create_avl_tree();
+         if (!_created()) _create_bn_tree();
          
          std::size_t _ErrorCode = 0;
 
-         _m_helper.set_title("Test avl_tree search");
+         _m_helper.set_title("Test bn_tree search");
          _m_helper.print_entry(ev6::el::MICROSECONDS);
 
          if (!_m_tree->contains(_m_array->at(445))) _ErrorCode = 1;
@@ -364,7 +347,7 @@ template < typename __Type > class avl_tree_test
          if (_created())
          {
 
-            _delete_avl_tree();
+            _delete_bn_tree();
 
             _m_tree = 0;
 
@@ -372,7 +355,7 @@ template < typename __Type > class avl_tree_test
 
       }
 
-};   // end of class avl_tree_test
+};   // end of class bn_tree_test
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -384,7 +367,7 @@ template < typename __Type > class avl_tree_test
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void test_avl_tree() { ev6::el::test::avl_tree_test<int> _Test; _Test(); }
+void test_bn_tree() { ev6::el::test::bn_tree_test<int> _Test; _Test(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

@@ -232,11 +232,13 @@ template< typename __Key, typename __Value = __Key, typename __Compare = std::le
 
          while (_Iterator != 0)
          {
+
             bn_node< __Key, __Value, __Compare>* _Temp = _Iterator.operator->();
-            
+  
             _Stack.push(_Temp);
             
             ++_Iterator;
+            std::cout << "Incremented" << std::endl;
          }
 
          for (int i = 0, _Len = _Stack.size(); i < _Len; ++i) delete _Stack.pop();
