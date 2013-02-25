@@ -73,10 +73,8 @@ void delete_avl_tree(avl_tree*);
 /* general functions for a avl_tree */
 
 vector* breadth_first_traversal(avl_tree*);
-void clear_avl_tree(avl_tree*);
+int compare(void*, void*);
 int contains_avl_tree(avl_tree*, void*);
-void empty_avl_tree(avl_tree*);
-vector* in_order_traversal(avl_tree*);
 void insert_avl_tree(avl_tree*, void*, void*);
 void remove_avl_tree(avl_tree*, void*);
 void* search(avl_tree*, void*);
