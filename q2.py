@@ -102,7 +102,7 @@ def cpp_helper(_Seqx, _Seqy):
       if (_Length == 1): return None, _Seqx, _Seqy
 
       # the first _Sequence ends up being the pair
-      else: return _Seqx, _Seqx,  _Seqy
+      else: return _Seqx, _Seqx, _Seqy
 
    ################### End Base Case ##############
 
@@ -111,6 +111,9 @@ def cpp_helper(_Seqx, _Seqy):
    _Middle = len(_Seqx) / 2
 
    _LeftSeqx, _RightSeqx = _Seqx[:_Middle], _Seqx[_Middle:]
+
+   #print "_LeftSeqx: " + str(_LeftSeqx)
+   #print "_RightSeqx: " + str(_RightSeqx)
 
    _LargestLeftX = _Seqx[len(_LeftSeqx) - 1]
 
@@ -133,6 +136,9 @@ def cpp_helper(_Seqx, _Seqy):
 
    ################### Glue #######################
 
+   print "_XLeftList: " + str(_XLeftList)
+   print "_XRightList: " + str(_XRightList)
+
    if (_LeftPairx != None):
 
       _LeftMinDistance = distance(_ShortestLeftPair[0][0], _ShortestLeftPair[0][1], _ShortestLeftPair[1][0], _ShortestLeftPair[1][1])
@@ -150,13 +156,23 @@ def cpp_helper(_Seqx, _Seqy):
 
       _Newy = list()
 
+      print "Shortest Distance: " + str(_ShortestDistance)
+
+      print "_Midpoint: " + str(_Midpoint)
+      print "_LeftMinDistance: " + str(_LeftMinDistance)
+      print "_RightMinDistance: " + str(_RightMinDistance)
+
       for _Temp in _YLeftList:
 
-         if (_Temp[0] > _Midpoint - _LeftMinDistance and _Temp[0] < _Midpoint + _RightMinDistance): _Newy.append(_Temp)
+         if (_Temp[0] > (_Midpoint - _LeftMinDistance) and _Temp[0] < (_Midpoint + _RightMinDistance)): _Newy.append(_Temp)
+
+         #print _Temp
 
       for _Temp in _YRightList:
 
-         if (_Temp[0] > _Midpoint - _LeftMinDistance and _Temp[0] < _Midpoint + _RightMinDistance): _Newy.append(_Temp)
+         if (_Temp[0] > (_Midpoint - _LeftMinDistance) and _Temp[0] < (_Midpoint + _RightMinDistance)): _Newy.append(_Temp)
+
+      print "_Newy: " + str(_Newy)
 
       for _Index in range(len(_Newy)):
 
@@ -172,9 +188,9 @@ def cpp_helper(_Seqx, _Seqy):
       
                _ShortestPair = [ _Newy[_Index], _Point ]
 
-   else: _ShortestPair = _ShortestRightPair
-
-   print "_ShortestPair: " + str(_ShortestPair)
+   else: 
+   
+      _ShortestPair = _ShortestRightPair
 
    return _ShortestPair, _XLeftList + _XRightList, _YLeftList + _YRightList
 
@@ -239,7 +255,7 @@ if __name__=="__main__":
 
    print " "
 
-   _PairList = generatePairs(100)
+   _PairList = generatePairs(15)
 
    _ShortestPair = closestpairExhaustive(_PairList)
 
