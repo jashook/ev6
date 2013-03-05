@@ -13,6 +13,7 @@
 /* ////////////////////////////////////////////////////////////////////////// */
 
 #include "array.h"
+#include "avl_tree.h"
 #include "linked_list.h"
 #include "test.h"
 #include "vector.h"

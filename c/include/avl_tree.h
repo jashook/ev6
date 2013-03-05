@@ -43,9 +43,9 @@ typedef struct avl_node
    int m_height;
    void* m_key;
    void* m_value;
-   avl_node* m_left_child;
-   avl_node* m_right_child;
-   avl_node* m_parent;
+   struct avl_node* m_left_child;
+   struct avl_node* m_right_child;
+   struct avl_node* m_parent;
 
 } avl_node;
 
