@@ -21,7 +21,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "array_test.hpp"
-#include "bn_tree_test.hpp"
 #include "avl_tree_test.hpp"
 #include "logger_test.hpp"
 #include "test_helper_test.hpp"
@@ -37,11 +36,8 @@ int main()
    {
       _Helper.print_entry(ev6::el::MICROSECONDS);   
 
-      //test_array();
-      //test_logger();
-      // test_helper_test(); // assumed to work correctly
+      test_array();
       test_avl_tree();
-      test_bn_tree();
 
       _Helper.print_exit();
 

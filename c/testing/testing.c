@@ -15,6 +15,9 @@
 #include "array.h"
 #include "avl_tree.h"
 #include "linked_list.h"
+#include "logger.h"
+#include "queue.h"
+#include "stack.h"
 #include "test.h"
 #include "vector.h"
 

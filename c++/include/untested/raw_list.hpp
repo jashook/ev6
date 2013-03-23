@@ -51,7 +51,7 @@ template<typename __Type> class raw_list
 
    private:   // private type definitions
 
-      typedef bn_node<__Type> _node;
+      typedef bidirectional_node<__Type> _node;
 
    private:   // member variables
 

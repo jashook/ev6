@@ -87,14 +87,14 @@ template <typename __Type, std::size_t __Size> class array
 
       reference _at_safe(size_type _Position) throw(std::range_error)
       {
-         if (_Position >= __Size) throw std::range_error("array::at _position is out of range");
+         if (_Position >= __Size) throw std::range_error("array::at _Position is out of range");
 
          return _m_data[_Position];
       }
 
       const_reference _at_safe(size_type _Position) const throw(std::range_error)
       {
-         if (_Position >= _size) throw std::range_error("array::at _position is out of range");
+         if (_Position >= __Size) throw std::range_error("array::at _Position is out of range");
 
          return _m_data[_Position];
       }

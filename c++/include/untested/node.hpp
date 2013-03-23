@@ -27,7 +27,6 @@
 #include "avl_node.hpp"
 #include "basic_node.hpp"
 #include "bidirectional_node.hpp"
-#include "bn_node.hpp"
 #include "forward_node.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
