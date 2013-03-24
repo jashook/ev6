@@ -47,7 +47,7 @@ def get_path(_Node, _List = None):
 
    return _List
 
-def dfs(url, _PassedList = None, _Set = None):
+def dfs(url, _SearchTerm = None, _PassedList = None, _Set = None, _Parent = None, _PossibleList = None):
    """
    Recursive helper function that returns a list of urls
    in depth-first order
@@ -60,9 +60,17 @@ def dfs(url, _PassedList = None, _Set = None):
    if _Set is None: _Set = set() 
    if _PassedList is None: _PassedList = list()
 
-   _Set.add(url)
+   if _PossibleList is None: _PossibleList  = list()
 
-   _List = getLinks(url) # get all of the links from that url
+   if _Parent is None: url = (url, None)
+
+   else: url = (url, _Parent)
+
+   _Set.add(url[0])
+
+   _List = getLinks(url[0]) # get all of the links from that url
+
+   _List = [ (_Index, url) for _Index in _List ]
 
    for _Url in _List:
 
@@ -70,11 +78,53 @@ def dfs(url, _PassedList = None, _Set = None):
       # if the url is in the set then skip over it
       ######################################################################
 
-      if _Url in _Set: continue
+      if _Url[0] in _Set: continue
 
-      dfs(_Url, _PassedList, _Set)
+      if _SearchTerm:
+
+         if _Url[0] == _SearchTerm:
+
+            _PassedList = get_path(_Url)
+
+            _PossibleList.append(_PassedList)
+
+            print _PossibleList
+
+            return _PossibleList
+
+      _PossibleList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
    
-      _PassedList.append(_Url)
+      if _SearchTerm:
+
+         _PossibleList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
+
+         _Max = 0
+         _MaxList = list()
+
+         if _PossibleList:
+
+            for _L in _PossibleList:
+
+               if len(_L) > _Max:
+
+                  _Max = len(_L)
+                  _MaxList = _L
+
+         _PassedList = _MaxList
+      
+         if _PassedList[0] != _SearchTerm and _PassedList[-1] != _SearchTerm:
+
+            _PassedList = None
+
+         elif _PassedList[-1] == _SearchTerm: return _PassedList
+
+         else: _PassedList = _PassedList[::-1]
+
+         return _PassedList
+
+      else: 
+
+         _PassedList.append(_Url[0])
 
    return _PassedList
 
@@ -109,10 +159,6 @@ def bfs(url, _SearchTerm = None, _PassedList = None, _Queue = None, _Set = None,
       ######################################################################
       # Checking if in set because there may be repeats in the queue
       ######################################################################
-
-      _PassedList.append(url[0])
-
-      _Set.add(url[0])
 
       _Queue.append(url)
 
@@ -151,9 +197,21 @@ def bfs(url, _SearchTerm = None, _PassedList = None, _Queue = None, _Set = None,
 
       _PList = bfs(_ToBeProcessed[0], _SearchTerm, _PassedList, _Queue, _Set, _ToBeProcessed[1])
 
-      if _SearchTerm is not None: 
+      if _SearchTerm: 
 
          _PassedList = _PList
+
+         if _PassedList:
+
+            if _PassedList[0] != _SearchTerm and _PassedList[-1] != _SearchTerm: 
+
+               print _PassedList
+
+               _PassedList = None
+
+            elif _PassedList[-1] == _SearchTerm: return _PassedList
+
+            else: _PassedList = _PassedList[::-1]
 
          return _PassedList
 
@@ -245,12 +303,17 @@ def find_shortest_path(url1,url2):
 
    print "\n"
 
-def find_max_depth(url):
+def find_max_depth(url1, url2):
    """
    Find and return the "longest shortest path" 
    from **url** to any other webpage
    """
-   #
+
+   print "\n"
+
+   print dfs(url1, url2)
+
+   print "\n"
 
 ################################################################################
 # Main
@@ -268,8 +331,9 @@ if __name__=="__main__":
    print "*********** (d) Find shortest path between two URLs ********"
    find_shortest_path("http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/index.html","http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/matula.html")
    find_shortest_path("http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/turing.html","http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/dijkstra.html")
+   find_shortest_path("http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/p5.html", "http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/turing.html")
    print "*********** (e) Find the longest shortest path from a starting URL *****"
-   find_max_depth(starturl)
+   find_max_depth(starturl, "http://lyle.smu.edu/~tylerm/courses/cse3353/webtraverse/turing.html")
 
 
 ################################################################################
