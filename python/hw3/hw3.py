@@ -36,24 +36,36 @@ def getLinks(url,baseurl="http://lyle.smu.edu/~tylerm/courses/cse3353/webtravers
    #pull out the links from the HTML and return
    return [baseurl+a["href"].encode('ascii','ignore') for a in soup.findAll('a')]
 
-def bfs(url, _Set = None):
+def dfs(url, _PassedList = None, _Set = None):
    """
    Recursive helper function that returns a list of urls
    in depth-first order
    """
-   if _Set is None: _Set = set() # create an empty set if null
+
+   ######################################################################
+   # initialize set and list if they are null
+   ######################################################################
+
+   if _Set is None: _Set = set() 
+   if _PassedList is None: _List = list()
 
    _Set.add(url)
 
-   _List = getLinks(url)
+   _PassedList.append(url)
+
+   _List = getLinks(url) # get all of the links from that url
 
    for _Url in _List:
 
-      
+      ######################################################################
+      # if the url is in the set then skip over it
+      ######################################################################
 
-   
+      if _Url not in _Set: continue
 
-   
+      dfs(_Url, _PassedList, _Set)
+
+   return _PassedList
 
 def print_dfs(url):
    """
@@ -61,14 +73,42 @@ def print_dfs(url):
    in depth-first order
    """
   
-   print bfs(url)
+   print dfs(url)
+
+def bfs(url, _List = None, _Queue = None, _Set = None):
+   """
+   Recursive helper function that returns a list of urls
+   in depth-first order
+   """
+
+   if _List is None: _List = list()
+   if _Set is None: _Set = set()
+   if _Queue is None: _Queue = queue()
+   
+   _Set.add(url)
+
+   _List.append(url)
+
+   _List = getLinks(url) # get all of the links from that url
+
+   for _Url in _List:
+
+      ######################################################################
+      # if the url is in the set then skip over it
+      ######################################################################
+
+      if _Url not in _Set: continue
+
+      bfs(_Url, _PassedList, _Set)
+
+   return _PassedList
 
 def print_bfs(url):
    """
    Print all links reachable from a starting **url** 
    in breadth-first order
    """
-   #
+   print bfs(url)
     
 def find_links(url):
    """
