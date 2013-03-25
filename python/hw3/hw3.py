@@ -78,47 +78,43 @@ def dfs(url, _SearchTerm = None, _PassedList = None, _Set = None, _Parent = None
       # if the url is in the set then skip over it
       ######################################################################
 
-      if _Url[0] in _Set: continue
-
       if _SearchTerm:
 
          if _Url[0] == _SearchTerm:
 
-            _PassedList = get_path(_Url)
+            _PossibleList.append(get_path(_Url))
 
-            _PossibleList.append(_PassedList)
+      if _Url[0] in _Set: continue
 
-            print _PossibleList
-
-            return (_PossibleList, None)
-
-      _PossibleList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
+      _PassedList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
    
       if _SearchTerm:
 
-         if _PossibleList[1] == None: continue
+         if _Url[0] == _SearchTerm:
 
-         _Max = 0
-         _MaxList = list()
+            _Max = 0
 
-         if _PossibleList:
+            _MaxList = list()
 
-            for _L in _PossibleList[0]:
+            for _L in _PossibleList: 
 
-               if len(_L) > _Max:
+               if _Max < len(_L): 
 
                   _Max = len(_L)
+
                   _MaxList = _L
 
-         _PassedList = _MaxList
-      
-         if _PassedList[0] != _SearchTerm and _PassedList[-1] != _SearchTerm:
+            _PassedList = _MaxList
 
-            _PassedList = None
+            if _PassedList:
 
-         elif _PassedList[-1] == _SearchTerm: return _PassedList
+               if _PassedList[0] != _SearchTerm and _PassedList[-1] != _SearchTerm:
 
-         else: _PassedList = _PassedList[::-1]
+                  _PassedList = None
+
+               elif _PassedList[-1] == _SearchTerm: return _PassedList
+
+               else: _PassedList = _PassedList[::-1]
 
          return _PassedList
 
@@ -126,7 +122,9 @@ def dfs(url, _SearchTerm = None, _PassedList = None, _Set = None, _Parent = None
 
          _PassedList.append(_Url[0])
 
-   return _PassedList
+   if _SearchTerm: return _PossibleList
+
+   else: return _PassedList
 
 def print_dfs(url):
    """
