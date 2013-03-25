@@ -90,20 +90,20 @@ def dfs(url, _SearchTerm = None, _PassedList = None, _Set = None, _Parent = None
 
             print _PossibleList
 
-            return _PossibleList
+            return (_PossibleList, None)
 
       _PossibleList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
    
       if _SearchTerm:
 
-         _PossibleList = dfs(_Url[0], _SearchTerm, _PassedList, _Set, _Url[1], _PossibleList)
+         if _PossibleList[1] == None: continue
 
          _Max = 0
          _MaxList = list()
 
          if _PossibleList:
 
-            for _L in _PossibleList:
+            for _L in _PossibleList[0]:
 
                if len(_L) > _Max:
 
