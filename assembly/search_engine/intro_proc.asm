@@ -25,15 +25,55 @@ length   equ   $ - message       ; message's length constant
 section .text
 global _start                    ; declared for linker
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;  Procedure: print
+;
+;  Arguements:
+;  
+;     ECX: offset of string to be printed
+;     EDX: length of string
+;
+;  Returns:
+;
+;     VOID
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print:
+
+         mov   ebx, 1            ; file descriptor(stdout)
+         mov   eax, 4            ; system call number (sys_write)
+         int   080h              ; interupt
+
+         mov   eax, 1            ; system call number (sys_exit) ... stop printing
+                                 ; infinite loop if you do not interupt it
+         int   080h              ; interupt
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 
+; Procedure: _main
+;
+; Arguements:
+;
+;     VOID
+;
+;  Returns:
+;
+;     VOID
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 _start:                          ; entry point
 
          mov   edx, length       ; length
          mov   ecx, message      ; message
-         mov   ebx, 1            ; file descriptor(stdout)
-         mov   eax, 4            ; system call number (sys_write)
-         int   080h               ; interupt
-   
-         mov   eax, 1            ; system call number (sys_exit)
-         int   080h               ; interupt
 
-   
+         call  print
+
+         
