@@ -3,16 +3,13 @@
 ;
 ; Author: Jarret Shook
 ;
-; Module: hello_world.asm
+; Module: cont_string.asm
 ;
 ; Modifications:
 ;
 ; 17-April-13: Version 1.0: Created
 ;
 ; Timeperiod: ev6
-;
-; Notes: prints a message to standard out via a hardware interupt.
-;        works only on linux because it is issuing a kernal system call
 ;
 ; Assembler: nasm -f elf64 test.asm
 ; ld -o test test.asm
@@ -23,11 +20,10 @@
 section .data
 
 length         equ   81
-const_message  db    'Hello!', 0Ah, 0
 
 section .bss
 
-buffer         resb  length         ; Reserve 81 bytes
+buffer         resb  length * 200   ; Reserve 81 bytes
 
 section .text
 
@@ -102,6 +98,8 @@ print:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+termin:
+
          mov   eax, 1               ; system call number (sys_exit) ... stop printing
                                     ; infinite loop if you do not interupt it
          int   080h                 ; interupt
@@ -123,19 +121,21 @@ print:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-_start:                             ; entry point
+_start:                                ; entry point
 
          nop
 
-         mov   edx, length          ; length to read
-         mov   ecx, buffer          ; message
+         mov   [buffer], word length   ; first 16 bytes are the length of the string
+
+         mov   edx, length             ; length to read
+         mov   ecx, [buffer + $word]   ; message (offset size of word)
 
          call  read
 
-         mov   edx, length          ; length to write
+         mov   edx, length             ; length to write
          mov   ecx, buffer
 
          call  print
 
-         exit
+         call termin
 
