@@ -26,7 +26,7 @@ const_message  db    'Error: bad_alloc', 0Ah, 0
 const_length   equ   $ - const_message
 
 message        db    "Hello", 0
-message2       db    " World", 10, 0
+message2       db    " World", 0
 
 _Head          dd    0h, 0h, 0h
 
@@ -116,48 +116,6 @@ create_node:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  Procedure: str_len_as
-;
-;  Arguements:
-;
-;     ECX: offset of string
-;
-;  Returns:
-;
-;     EAX: string size
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-str_len_as:
-
-         xor   eax, eax                   ; zero out eax
-
-         push  rcx                        ; store the origional string
-
-begin_str_len_loop:
-
-         cmp   [ecx], byte 0
-      
-         je    end_str_len_loop           ; break if null
-
-         add   eax, 1                     ; increment eax if not null
- 
-         add   ecx, 1                     ; increment the pointer
-  
-         jmp   begin_str_len_loop         ; repeat
-
-end_str_len_loop:
-
-         add   eax, 1                     ; plus null terminator
-
-         pop   rcx                        ; restore the origional string
-
-         ret                              ; if null terminator is reached return
-   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
 ;  Procedure: print_tree
 ;
 ;  Arguements:
@@ -173,35 +131,25 @@ end_str_len_loop:
 
 print_tree:
 
-         mov   ecx, [eax]                 ; pointer to message stored in first memory location
+         mov   ecx, [eax]              ; pointer to message stored in first memory location
 
-         push  rax
+         mov   edx, 32                 ; must be a dword
 
-         call  str_len_as
+         ;call  print
 
-         mov   edx, eax                   ; must be a dword
-
-         pop   rax
-
-         push  rax                        ; avoid overwriting eax
-
-         call  print
-
-         pop   rax
-
-         cmp   [eax + 4], dword 0         ; if left is null
+         cmp   [eax + 4], dword 0      ; if left is null
 
          je    _return_
 
-         mov   eax, [eax + 4]             ; go left
+         mov   eax, [eax + 4]          ; go left
 
          call  print_tree
 
-         cmp   [eax + 8], dword 0         ; if right is null
+         cmp   [eax + 8], dword 0      ; if right is null
 
          je    _return_
 
-         mov   eax, [eax + 8]             ; go right
+         mov   eax, [eax + 8]          ; go right
 
          call print_tree
 
@@ -230,6 +178,10 @@ print:
 
          mov   ebx, 1               ; file descriptor(stdout)
          mov   eax, 4               ; system call number (sys_write)
+         int   080h                 ; interupt
+
+         mov   eax, 1               ; system call number (sys_exit) ... stop printing
+                                    ; infinite loop if you do not interupt it
          int   080h                 ; interupt
 
          ret
@@ -278,13 +230,13 @@ _start:                                      ; entry point
 
          nop
 
-         mov   [_Head], dword message        ; store the address of message, in the "node"
+         mov   [_Head], dword 10             ; store the address of message, in the "node"
          
          call create_node                    ; allocate space for a new node
 
-         mov   [eax], dword message2         ; eax stores the address of the node
+         mov   [eax], dword 12
 
-         mov   [_Head + 4], dword eax        ; 4 bytes (offset for a dword)
+         mov   [_Head + 4], dword eax       ;  32 bytes (offset for a dword)
 
          mov   eax, _Head
 
