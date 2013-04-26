@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Author: Jarret Shook
@@ -12,8 +12,8 @@
 ;
 ; Timeperiod: ev6
 ;
-; Assembler: nasm -f elf64 test.asm
-; ld -o test test.asm
+; Assembler: nasm -f elf64 bn_tree.asm
+; ld -o test bn_tree.asm
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -112,6 +112,107 @@ create_node:
          call  allocate             ; call allocate
 
          ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;  Procedure: str_cmp_as
+;
+;  Arguements:
+;
+;     EBX: offset of a string
+;     ECX: offset of a second string
+;
+;  Returns:
+;
+;     EAX: -1 EBX is less than ECX
+;        :  0 EBX is equal to ECX
+;        :  1 EBX is greater than ECX
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+str_cmp_as:
+
+            xor   eax, eax                ; zero out eax
+
+            push  rbx                     ; save the first string
+
+            push  rcx                     ; save the second string
+
+            jmp   cmp_equal
+
+cmp_ret:
+
+            pop   rcx                     ; get the second string back
+
+            pop   rbx                     ; get the first string
+
+            ret
+
+cmp_equal:
+
+            cmpsb [ebx], [ecx]      ; compare the two string
+
+            je    cmp_equal_helper        ; go to a helper "label"
+
+            cmp   byte [ebx], byte [ecx]  ; less than?
+
+            jb    ret_less
+
+            cmp   byte [ebx], byte [ecx]  ; gt?
+
+            ja    ret_greater
+
+cmp_equal_helper:
+
+            cmp   [ebx], byte 0           ; null terminator?
+            
+            je    cmp_equal_l             ; less than?
+
+            cmp   [ecx], byte 0           ; gt?
+
+            je    cmp_equal_g
+
+            add   ebx, 1                  ; increment ebx
+
+            add   ecx, 1                  ; increment ecx
+
+            jmp    cmp_equal              ; continue?
+
+cmp_equal_l:
+
+            cmp   [ecx], byte 0
+
+            je    ret_equal               ; return equal
+
+            jmp   ret_less                ; else it is less than
+
+cmp_equal_g:
+
+            cmp   [ebx], byte 0
+
+            je    ret_equal               ; return equal
+
+            jmp   ret_greater             ; return greater
+
+ret_equal:
+
+            mov   eax, 0                  ; equal
+
+            jmp   cmp_ret
+
+ret_less:
+
+            mov   eax, -1                 ; less than
+
+            jmp   cmp_ret
+
+ret_greater:
+
+            mov   eax, 1                  ; greater than
+
+            jmp   cmp_ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -291,4 +392,3 @@ _start:                                      ; entry point
          call print_tree;
 
          call _exit_
-
