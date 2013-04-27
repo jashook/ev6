@@ -36,6 +36,7 @@ global _start                                      ; declared for linker
 extern alloc
 extern print_str
 extern _system_exit_
+extern str_len
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -86,7 +87,7 @@ print_tree:
 
          push  rax
 
-         call  str_len_as
+         call  str_len
 
          mov   edx, eax                   ; must be a dword
 
