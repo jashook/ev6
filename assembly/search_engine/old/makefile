@@ -17,16 +17,21 @@
 ################################################################################
 ################################################################################
 
-FILES := $(wildcard *.asm)
-OBJ := $(FILES:.asm=.o)
+FILES := $(wildcard include/*.asm)
 
-all: debug link clean
+MAIN := $(wildcard *.asm)
 
-debug: $(FILES)
-	nasm -g -f elf64 $(FILES)
+FILES += $(MAIN)
+
+OBJ = $(FILES:.asm=.o)
+
+all : $(OBJ) link clean
+
+$(OBJ): $(FILES)
+	nasm -g -f elf64 $*.asm
 
 link: $(OBJ)
 	ld -o a.out $(OBJ)
 
-clean: $(FILES)
+clean: $(OBJ)
 	rm -rf *.o include/*.o

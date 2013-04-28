@@ -34,11 +34,6 @@ section .bss
 
 section .text
 
-global str_cmp
-global str_cpy
-global str_len
-global mem_set
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; External Procedures
@@ -102,7 +97,7 @@ cmp_equal:
 
 cmp_equal_helper:
 
-         cmp   [ebx], byte 0     ; null terminator?
+         cmp   al, byte 0        ; null terminator?
 
          je    cmp_equal_l       ; if so then is it also less than ebx
 
