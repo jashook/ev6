@@ -18,6 +18,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+%ifndef __BN_TREE_ASM__
+%define __BN_TREE_ASM__
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 %include "alloc.asm"
 %include "io.asm"
 %include "string.asm"
@@ -69,7 +75,8 @@ global _start                    ; declared for linker
 
 create_node:
 
-         mov   eax, 32 * 3       ; size of a node
+         mov   eax, 32 * 5       ; size of a node
+                                 ; data, leftptr, rightptr, parentptr, height
          
          call  alloc             ; call allocate
 
@@ -108,6 +115,10 @@ create_tree:
          mov   [eax + 4], dword 0   ; zero out the right pointer
 
          mov   [eax + 8], dword 0   ; zero out the right pointer
+
+         mov   [eax + 12], dword 0  ; zero out the parent pointer
+
+         mov   [eax + 15], dword 0  ; default height of zero
 
          mov   [ebx], dword eax  ; head at the first index
 
@@ -153,7 +164,7 @@ descend_loop:
 
          je    exit_descend_loop ; then exit the loop
 
-         push  eax               ; save the pointer
+         push  rax               ; save the pointer
 
          mov   ebx, ecx          ; first string
 
@@ -163,7 +174,7 @@ descend_loop:
 
          cmp   eax, 0            ; are the strings equal?
 
-         pop   eax               ; get back the descending pointer
+         pop   rax               ; get back the descending pointer
 
          jb    less_than_desc 
 
@@ -231,15 +242,15 @@ insert_tree:
 
          je    insert_at_head    ; then insert at the head
 
-         push  eax               ; save eax
+         push  rax               ; save eax
 
-         push  ecx               ; save ecx
+         push  rcx               ; save ecx
 
          call  descend_tree      ; descend through the tree if the head is already set
 
-         pop   ecx               ; restore ecx
+         pop   rcx               ; restore ecx
 
-         pop   eax               ; restore eax
+         pop   rax               ; restore eax
 
          mov   edx, ebx
 
@@ -247,13 +258,13 @@ insert_tree:
 
          mov   ecx, edx          ; second string
  
-         push  eax
+         push  rax
 
          call  str_cmp
 
          cmp   eax, 0            ; are they equal?
 
-         pop eax
+         pop   rax
 
          mov   ecx, ebx
 
@@ -271,13 +282,13 @@ insert_at_head:
 
          mov   [ebx], dword ecx  ; insert the string
 
-         inc   [eax + 4]         ; increment the size
+         add   [eax + 4], byte 1 ; increment the size
 
          ret
 
 insert_left:
 
-         push  eax               ; save eax
+         push  rax               ; save eax
 
          pushad                  ; save the registers
 
@@ -291,9 +302,17 @@ insert_left:
 
          mov   [eax + 8], dword 0   ; zero out the right pointer
 
+         mov   [eax + 12], dword 0  ; zero out the parent pointer
+
+         mov   edx, dword [ebx + 16]
+
+         inc   edx               ; store the parent's height then increment it once for the new height
+
+         mov   [eax + 16], dword edx
+
          mov   [ebx + 4], dword eax ; set the new node to be the left pointer
    
-         pop   eax               ; restor eax
+         pop   rax               ; restor eax
 
          inc   [eax + 4]         ; increment the size of the tree
 
@@ -301,7 +320,7 @@ insert_left:
 
 insert_right:
 
-         push  eax               ; save eax
+         push  rax               ; save eax
 
          pushad                  ; save the registers
 
@@ -315,9 +334,17 @@ insert_right:
 
          mov   [eax + 8], dword 0   ; zero out the right pointer
 
+         mov   [eax + 12], dword 0  ; zero out the parent pointer
+
+         mov   edx, dword [ebx + 16]
+
+         inc   edx               ; store the parent's height then increment it once for the new height
+
+         mov   [eax + 16], dword edx
+
          mov   [ebx + 8], dword eax ; set the new node to be the right pointer
    
-         pop   eax               ; restor eax
+         pop   rax               ; restor eax
 
          inc   [eax + 4]         ; increment the size of the tree
       
@@ -377,3 +404,10 @@ _return_:
 
          ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%endif   ; __BN_TREE_ASM__
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
