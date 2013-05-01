@@ -18,20 +18,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "include/bn_tree.asm"
-%include "include/string.asm"
-%include "include/util.asm"
+%include "bn_tree.asm"
+%include "string.asm"
+%include "util.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section .data
 
-string1  db    'apple', 0        ; first string to be compared
-string2  db    'acorn', 0        ; secong string
-string3  db    'pear', 0         ; third...
-string4  db    'apple', 0           
-string5  db    'new york', 0
+string1  db    'apple', 0Ah, 0        ; first string to be compared
+string2  db    'acorn', 0Ah, 0        ; secong string
+string3  db    'pear', 0Ah, 0         ; third...
+string5  db    'new york', 0Ah, 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -71,13 +70,25 @@ global _start
 
 _start:
 
-         mov   eax, 22
+         call  create_tree
 
-         mov   ebx, string1
+         mov   ecx, string1
+
+         call  insert_tree
+
+         mov   ecx, string2
+
+         call  insert_tree
 
          mov   ecx, string3
 
-         call  str_cmp
+         call  insert_tree
+
+         mov   ecx, string5
+
+         call  insert_tree
+
+         call  print_tree
 
          call  _system_exit_
 

@@ -20,10 +20,12 @@
 FILES := $(wildcard *.asm)
 OBJ := $(FILES:.asm=.o)
 
+INCLUDE := include
+
 all: debug link clean
 
 debug: $(FILES)
-	nasm -g -f elf64 $(FILES)
+	nasm -g -i $(INCLUDE)/ -f elf64 $(FILES)
 
 link: $(OBJ)
 	ld -o a.out $(OBJ)

@@ -106,9 +106,15 @@ create_tree:
 
          mov   eax, 32 * 2       ; struct to hold a head pointer and the size of the tree
 
+         call  alloc
+
          mov   ebx, eax
 
+         push  rbx
+
          call  create_node       ; create the head
+
+         pop   rbx
 
          mov   [eax], dword 0    ; zero out the data
 
@@ -176,7 +182,7 @@ descend_loop:
 
          pop   rax               ; get back the descending pointer
 
-         jb    less_than_desc 
+         js    less_than_desc    ; sign flag should be set
 
          ja    greater_than_desc
 
@@ -210,6 +216,64 @@ exit_descend_loop:
 
          ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Procedure: heights
+;
+; Arguements:
+;
+;     EAX: pointer to a node's left child
+;     EBX: pointer to a node's right child
+;
+; Uses:
+;
+;     EAX
+;     EBX
+;     ECX
+;     EDX
+;
+; Returns:
+;
+;     ECX: first height to be returned
+;     EDX: second height
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+heights:
+   
+         xor   ecx, ecx          ; zero out the first return register
+
+         xor   edx, edx          ; zero out the second return register
+
+         cmp   eax, dword 0      ; is it a null pointer?
+
+         je    set_left_special_height
+
+         mov   ecx, dword [eax + 16]   ; else get the height
+
+back_height:
+
+         cmp   ebx, dword 0      ; is it a null pointer?
+
+         je    set_right_special_height
+
+         mov   edx, dword [ebx + 16]   ; else get the node's height
+
+set_left_special_height:
+
+         mov   ecx, dword -1     ; if null then the height is -1
+
+         jmp   back_height
+
+set_right_special_height:
+
+         mov   edx, dword -1     ; if it is null then the height is -1
+
+ret_height:
+
+         ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -252,11 +316,11 @@ insert_tree:
 
          pop   rax               ; restore eax
 
-         mov   edx, ebx
+         mov   edx, ebx          ; save the parent pointer
 
          mov   ebx, ecx          ; first string
 
-         mov   ecx, edx          ; second string
+         mov   ecx, [edx]        ; second string
  
          push  rax
 
@@ -266,11 +330,11 @@ insert_tree:
 
          pop   rax
 
-         mov   ecx, ebx
+         mov   ecx, ebx          ; move the second string back
 
-         mov   ebx, edx
+         mov   ebx, edx          ; move the parent pointer back
    
-         jb    insert_left       ; if less than insert at the left
+         js    insert_left       ; if less than insert at the left
 
          ja    insert_right      ; else insert at the right
 
@@ -290,19 +354,27 @@ insert_left:
 
          push  rax               ; save eax
 
-         pushad                  ; save the registers
+         push  rbx
+
+         push  rcx
+
+         push  rdx               ; save the registers
 
          call create_node
 
-         popad                   ; restore the registers
+         pop   rdx                ; restore the registers
+
+         pop   rcx
+
+         pop   rbx
 
          mov   [eax], ecx        ; insert the string
 
-         mov   [eax + 4], dword 0   ; zero out the left pointer
+         mov   [eax + 4], dword 0      ; zero out the left pointer
 
-         mov   [eax + 8], dword 0   ; zero out the right pointer
+         mov   [eax + 8], dword 0      ; zero out the right pointer
 
-         mov   [eax + 12], dword 0  ; zero out the parent pointer
+         mov   [eax + 12], dword ebx   ; zero out the parent pointer
 
          mov   edx, dword [ebx + 16]
 
@@ -314,7 +386,7 @@ insert_left:
    
          pop   rax               ; restor eax
 
-         inc   [eax + 4]         ; increment the size of the tree
+         inc   dword [eax + 4]   ; increment the size of the tree
 
          jmp   return_insert_tree
 
@@ -322,19 +394,27 @@ insert_right:
 
          push  rax               ; save eax
 
-         pushad                  ; save the registers
+         push  rbx               ; save the registers
+
+         push  rcx  
+
+         push  rdx
 
          call create_node
 
-         popad                   ; restore the registers
+         pop   rdx
+
+         pop   rcx
+
+         pop   rbx               ; restore the registers
 
          mov   [eax], ecx        ; insert the string
 
-         mov   [eax + 4], dword 0   ; zero out the left pointer
+         mov   [eax + 4], dword 0      ; zero out the left pointer
 
-         mov   [eax + 8], dword 0   ; zero out the right pointer
+         mov   [eax + 8], dword 0      ; zero out the right pointer
 
-         mov   [eax + 12], dword 0  ; zero out the parent pointer
+         mov   [eax + 12], dword ebx   ; zero out the parent pointer
 
          mov   edx, dword [ebx + 16]
 
@@ -344,11 +424,19 @@ insert_right:
 
          mov   [ebx + 8], dword eax ; set the new node to be the right pointer
    
-         pop   rax               ; restor eax
+         pop   rax               ; restore eax
 
-         inc   [eax + 4]         ; increment the size of the tree
+         inc   dword [eax + 4]   ; increment the size of the tree
       
          jmp   return_insert_tree
+
+check_if_balanced:
+
+         push  rax               ; push rax
+
+         mov   eax, ebx          ; last node inserted becomes eax
+
+         
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -368,6 +456,20 @@ insert_right:
 
 print_tree:
 
+         mov   eax, dword [eax]
+
+print_tree_helper:
+
+         cmp   [eax + 4], dword 0         ; if left is null
+
+         je    right
+
+         push  rax                        ; save the current node
+         
+         mov   eax, [eax + 4]             ; go left
+
+         call  print_tree_helper
+
          mov   ecx, [eax]                 ; pointer to message stored in first memory location
 
          push  rax
@@ -384,21 +486,45 @@ print_tree:
 
          pop   rax
 
-         cmp   [eax + 4], dword 0         ; if left is null
+         pop   rax                        ; after recursion restore the node
+
+         mov   ecx, [eax]                 ; pointer to message stored in first memory location
+
+         push  rax
+
+         call  str_len
+
+         mov   edx, eax                   ; must be a dword
+
+         pop   rax
+
+         push  rax                        ; avoid overwriting eax
+
+         call  print_str
+
+         pop   rax
+
+right:   cmp   [eax + 8], dword 0         ; if right is null
 
          je    _return_
 
-         mov   eax, [eax + 4]             ; go left
-
-         call  print_tree
-
-         cmp   [eax + 8], dword 0         ; if right is null
-
-         je    _return_
+         push  rax                        ; save the current node
 
          mov   eax, [eax + 8]             ; go right
 
-         call print_tree
+         call print_tree_helper
+
+         mov   ecx, [eax]                 ; pointer to message stored in first memory location
+
+         push  rax
+
+         call  str_len
+
+         mov   edx, eax                   ; must be a dword
+
+         pop   rax
+
+         pop   rax                        ; after recursion restore the node
 
 _return_:
 
