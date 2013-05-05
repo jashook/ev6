@@ -53,6 +53,8 @@ section .text
 
 global _start                    ; declared for linker
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -374,7 +376,7 @@ insert_left:
 
          mov   [eax + 8], dword 0      ; zero out the right pointer
 
-         mov   [eax + 12], dword ebx   ; zero out the parent pointer
+         mov   [eax + 12], dword ebx   ; set the parent pointer
 
          mov   edx, dword [ebx + 16]
 
@@ -414,7 +416,7 @@ insert_right:
 
          mov   [eax + 8], dword 0      ; zero out the right pointer
 
-         mov   [eax + 12], dword ebx   ; zero out the parent pointer
+         mov   [eax + 12], dword ebx   ; set the parent pointer
 
          mov   edx, dword [ebx + 16]
 
@@ -436,7 +438,76 @@ check_if_balanced:
 
          mov   eax, ebx          ; last node inserted becomes eax
 
-         
+         mov   ecx, eax          ; save eax
+   
+         mov   eax, [ecx + 4]    ; left pointer
+
+         mov   eax, [ecx + 8]    ; right pointer
+
+         push  ecx               ; save the node
+
+         call  heights           ; get their heights
+
+         call  max_heights       ; get the largest height
+
+         call  are_balanced      ; is the node balanced?
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Procedure: max_heights
+;
+; Arguements:
+;
+;     ECX: first height
+;     EDX: second height
+;
+; Uses:
+;
+;     EAX
+;
+; Returns
+;
+;     EAX: largest of the two heights
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+max_heights:
+
+         cmp   ecx, edx          ; compare the heights
+
+         je    equal_height      ; equal
+
+         js    signed_height     ; is one -1?
+
+         ja    larger_height     ; else larger
+
+smaller_height:
+
+         mov   eax, edx          ; else it is the smaller one
+
+         ret
+
+equal_height:
+
+         mov   eax, ecx          ; equal
+
+         ret
+
+signed_height:
+
+         cmp   ecx, -1           ; is ecx or edx -1
+
+         je    smaller_height    ; if ecx is -1 then it is smaller
+
+         jmp   larger_height     ; else edx is -1 and smaller
+
+larger_height:
+
+         mov   eax, ecx
+
+         ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
