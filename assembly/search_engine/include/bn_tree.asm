@@ -53,7 +53,48 @@ section .text
 
 global _start                    ; declared for linker
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Procedure: are_balanced
+;
+; Arguements:
+;
+;     ECX: first height
+;     EDX: second height
+;
+; Uses
+;
+;     EBX
+;
+; Returns:
+;
+;     EBX: true or false (1 or 0)
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+are_balanced:
+
+         sub   ecx, edx          ; subtrace the first from the second height
+
+         cmp   ecx, 2            ; not balanced?
+
+         je    not_balanced
+
+         cmp   ecx, -2           ; not balanced
+
+         je    not_balanced
+
+         mov   ebx, 1            ; else they are balanced
+
+         ret
+
+not_balanced:
+
+         mov   ebx, 0            ; false
+
+         ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -438,19 +479,50 @@ check_if_balanced:
 
          mov   eax, ebx          ; last node inserted becomes eax
 
+height_loop:
+
          mov   ecx, eax          ; save eax
    
          mov   eax, [ecx + 4]    ; left pointer
 
-         mov   eax, [ecx + 8]    ; right pointer
+         mov   ebx, [ecx + 8]    ; right pointer
 
          push  ecx               ; save the node
 
          call  heights           ; get their heights
 
+         pop   ebx               ; restore the node
+
          call  max_heights       ; get the largest height
 
+         push  rbx               ; save ebx
+
          call  are_balanced      ; is the node balanced?
+
+         cmp   ebx, 1            ; true?
+
+         pop   rbx               ; restore ebx (the node)
+
+         mov   [ebx + 16], dword eax   ; eax contains the largest height
+
+         je    height_loop_help  ; then continue up   
+
+         jmp   balance           ; make an avl_tree !!!!
+
+height_loop_help:
+
+         mov   eax, dword [ebx + 12]   ; go up one parent
+         
+         cmp   eax, 0            ; null ptr?
+
+         ret
+
+         jmp   height_loop
+
+balance:
+
+        
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
