@@ -343,6 +343,14 @@ ret_height:
 
 insert_tree:
 
+         push  rbp               ; push the origional base pointer
+
+         mov   rbp, rsp          ; save the stack pointer
+
+         sub   rsp, 4            ; one dword
+
+         mov   [rbp + 4], dword eax    ; save the string
+
          mov   ebx, dword [eax]  ; move into ebx the pointer to the head node
 
          cmp   [ebx], dword 0    ; is the data for the head null?
@@ -383,6 +391,10 @@ insert_tree:
 
 return_insert_tree:
 
+         add   rsp, 4            ; deallocate local storage
+
+         pop   rbp
+
          ret
 
 insert_at_head:
@@ -390,6 +402,10 @@ insert_at_head:
          mov   [ebx], dword ecx  ; insert the string
 
          add   [eax + 4], byte 1 ; increment the size
+
+         add   rsp, 4            ; deallocate local storage
+
+         pop   rbp               ; restore rbp
 
          ret
 
@@ -487,11 +503,11 @@ height_loop:
 
          mov   ebx, [ecx + 8]    ; right pointer
 
-         push  ecx               ; save the node
+         push  rcx               ; save the node
 
          call  heights           ; get their heights
 
-         pop   ebx               ; restore the node
+         pop   rbx               ; restore the node
 
          call  max_heights       ; get the largest height
 
@@ -515,13 +531,19 @@ height_loop_help:
          
          cmp   eax, 0            ; null ptr?
 
-         ret
+         je    break_height
 
          jmp   height_loop
 
+break_height:
+
+         add   rsp, 4            ; deallocate memory
+
+         pop   rbp               ; restore rbp
+
 balance:
 
-        
+         
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
