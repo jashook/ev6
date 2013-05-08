@@ -76,9 +76,9 @@ _start:
 
          call  insert_tree
 
-         mov   ecx, string2
+#         mov   ecx, string2
 
-         call  insert_tree
+#         call  insert_tree
 
          mov   ecx, string3
 
