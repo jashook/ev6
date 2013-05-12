@@ -1028,13 +1028,13 @@ ret_parent_left:
 
          pop   rbx
 
-         mov   ecx, [eax + 12]   ; left_child.parent
+         mov   ecx, [ebx + 12]   ; parent.parent
 
          ; EAX: left_child, EBX: parent, ECX: left_child.parent
 
-         mov   ecx, dword [ebx + 12]   ; left_child.parent = parent.parent
+         mov   [ebx + 12], dword eax   ; parent.parent = left_child
 
-         mov   [ebx + 12], dword eax
+         mov   [ebx + 12], dword ecx   ; left_child.parent = parent.parent
 
          mov   ebx, eax
 
