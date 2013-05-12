@@ -421,15 +421,19 @@ ret_height:
 
 insert_tree:
 
+         push  rax
+      
+         push  rcx
+
          push  rbp               ; push the origional base pointer
 
          mov   rbp, rsp          ; save the stack pointer
 
          sub   rsp, 8            ; one dword
 
-         mov   [rsp + 4], dword eax    ; save the struct
+         mov   [rbp], dword eax  ; save the struct
 
-         mov   [rsp], dword ecx    ; save the string
+         mov   [rbp - 4], dword ecx  ; save the string
 
          mov   ebx, dword [eax]  ; move into ebx the pointer to the head node
 
@@ -475,6 +479,10 @@ return_insert_tree:
 
          pop   rbp
 
+         pop   rcx
+
+         pop   rax
+
          ret
 
 insert_at_head:
@@ -486,6 +494,10 @@ insert_at_head:
          add   rsp, 8            ; deallocate local storage
 
          pop   rbp               ; restore rbp
+
+         pop   rcx
+
+         pop   rax
 
          ret
 
@@ -501,7 +513,7 @@ insert_left:
 
          call create_node
 
-         pop   rdx                ; restore the registers
+         pop   rdx               ; restore the registers
 
          pop   rcx
 
@@ -515,15 +527,13 @@ insert_left:
 
          mov   [eax + 12], dword ebx   ; set the parent pointer
 
-         mov   edx, dword [ebx + 16]
-
-         inc   edx               ; store the parent's height then increment it once for the new height
-
-         mov   [eax + 16], dword edx
+         mov   [eax + 16], dword 0     ; new node has height 0
 
          mov   [ebx + 4], dword eax ; set the new node to be the left pointer
    
-         pop   rax               ; restor eax
+         mov   ebx, eax          ; set the new node to ebx
+
+         pop   rax               ; restore eax
 
          inc   dword [eax + 4]   ; increment the size of the tree
 
@@ -555,14 +565,12 @@ insert_right:
 
          mov   [eax + 12], dword ebx   ; set the parent pointer
 
-         mov   edx, dword [ebx + 16]
-
-         inc   edx               ; store the parent's height then increment it once for the new height
-
-         mov   [eax + 16], dword edx
+         mov   [eax + 16], dword 0     ; new node has height 0
 
          mov   [ebx + 8], dword eax ; set the new node to be the right pointer
    
+         mov   ebx, eax          ; set the new node to ebx
+
          pop   rax               ; restore eax
 
          inc   dword [eax + 4]   ; increment the size of the tree
@@ -571,9 +579,7 @@ insert_right:
 
 check_if_balanced:
 
-         push  rax               ; push rax
-
-         mov   eax, ebx          ; last node inserted becomes eax
+         mov   eax, ebx
 
 height_loop:
 
@@ -599,11 +605,15 @@ height_loop:
 
          call  are_balanced      ; is the node balanced?
 
-         cmp   ebx, 1            ; true?
+         mov   rcx, rbx          ; save the true or false value
 
          pop   rbx               ; restore ebx (the node)
 
+         inc   dword eax         ; increment the largest height
+
          mov   [ebx + 16], dword eax   ; eax contains the largest height
+
+         cmp   ecx, 1            ; true?
 
          je    height_loop_help  ; then continue up   
 
@@ -625,11 +635,13 @@ break_height:
 
          pop   rbp               ; restore rbp
 
+         pop   rcx
+
+         pop   rax
+
          ret
 
 balance:
-
-         mov   ebx, [ebx + 12]   ; parent pointer
 
          mov   ecx, [ebx]        ; get the value
 
@@ -639,7 +651,7 @@ balance:
 
          mov   ecx, [ebx]        ; second string
 
-         mov   ebx, [rsp + 4]    ; first string
+         mov   ebx, [rbp - 4]    ; first string
 
          call  str_cmp           ; call string compare
 
@@ -677,15 +689,29 @@ less_than_balance:
 
          pop   rax               ; clean the stack
 
-         mov   eax, [ebp + 8]    ; pass the pointer to the tree struct
+         mov   eax, [rbp]    ; pass the pointer to the tree struct
 
-         call  rotate_with_left_child
+         js rot_with_left_child
 
          call  double_with_left_child
 
+rot_ret_left:
+
          add   rsp, 8            ; clean up the stack
 
+         pop   rbp
+
+         pop   rcx
+
+         pop   rax
+
          ret
+
+rot_with_left_child:
+
+         call  rotate_with_left_child
+
+         jmp   rot_ret_left
 
 greater_than_balance:
 
@@ -697,7 +723,7 @@ greater_than_balance:
          
          push  rbx               ; save the pointer
 
-         mov   ebx, dword [eax]        ; get the value
+         mov   ebx, dword [eax]  ; get the value
 
          call  str_cmp
 
@@ -707,15 +733,29 @@ greater_than_balance:
 
          pop   rax               ; clean the stack
 
-         mov   eax, [ebp + 8]    ; pass the pointer to the tree struct
+         mov   eax, [rbp - 4]    ; pass the pointer to the tree struct
 
-         call  rotate_with_right_child
+         js    rot_with_right_child
 
          call  double_with_right_child
 
+rot_ret_right:
+
          add   rsp, 8            ; clean up the stack
 
+         pop   rbp
+
+         pop   rcx
+
+         pop   rax
+
          ret
+
+rot_with_right_child:
+
+         call  rotate_with_right_child
+
+         jmp   rot_ret_right
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -740,13 +780,21 @@ greater_than_balance:
 
 max_heights:
 
+         cmp   ecx, -1           ; signed?
+
+         je    signed_height
+
+         cmp   edx, -1           ; signed?
+
+         je    signed_height
+
          cmp   ecx, edx          ; compare the heights
 
          je    equal_height      ; equal
 
-         js    signed_height     ; is one -1?
-
          ja    larger_height     ; else larger
+
+                                 ; fall through
 
 smaller_height:
 
@@ -916,7 +964,7 @@ rotate_with_left_child:
 
          sub   rsp, 4            ; one dword
 
-         mov   [rsp], dword eax    ; save the pointer to the root
+         mov   [rbp - 4], dword eax    ; save the pointer to the root
 
          cmp   ebx, 0            ; null?
 
@@ -994,11 +1042,9 @@ ret_parent_left:
 
          jne   continue_left_set_up
 
-         mov   eax, dword [rsp + 4]    ; restore the root node
+         mov   eax, dword [rbp - 4]    ; restore the root node
          
          mov   eax, ebx
-
-         add   rsp, 4            ; clean the stack
 
          jmp   ret_rotate_left
 
@@ -1028,15 +1074,11 @@ continue_left_set_up:
 
          mov   [eax + 8], rbx    ; parent.parent.right = parent
 
-         add   rsp, 4            ; clean the stack
-
          jmp   ret_rotate_left
 
 less_than_set_up_balance:
 
          mov   [eax + 4], rbx    ; parent.parent.left = parent
-
-         add   rsp, 4            ; clean up the stack
 
          jmp   ret_rotate_left
 
@@ -1047,6 +1089,10 @@ set_parent_right:
          jmp   ret_parent_left
 
 ret_rotate_left:
+
+         add   rsp, 4            ; clean up the stack
+
+         pop   rbp               ; restore the base pointer
 
          ret
 
@@ -1085,7 +1131,7 @@ rotate_with_right_child:
 
          sub   rsp, 4            ; one dword
 
-         mov   [rsp + 4], dword eax    ; save the pointer to the tree struct
+         mov   [rbp - 4], dword eax    ; save the pointer to the tree struct
 
          cmp   ebx, 0            ; null?
 
@@ -1163,13 +1209,11 @@ ret_parent_right:
 
          jne   continue_right_set_up
 
-         mov   eax, dword [rsp + 4]    ; restore the root node
+         mov   eax, dword [rbp - 4]    ; restore the root node
          
          mov   eax, ebx
 
-         add   rsp, 4            ; clean the stack
-
-         jmp   ret_rotate_left
+         jmp   ret_rotate_right
 
 continue_right_set_up:
 
@@ -1197,8 +1241,6 @@ continue_right_set_up:
 
          mov   [eax + 8], rbx    ; parent.parent.right = parent
 
-         add   rsp, 4            ; clean the stack
-
          jmp   ret_rotate_right
 
 less_than_set_up_balance_right:
@@ -1216,6 +1258,10 @@ set_parent_left:
          jmp   ret_parent_right
 
 ret_rotate_right:
+
+         add   rsp, 4
+
+         pop   rbp
 
          ret
 

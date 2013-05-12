@@ -29,6 +29,7 @@ section .data
 
 string1  db    'apple', 0Ah, 0        ; first string to be compared
 string2  db    'acorn', 0Ah, 0        ; secong string
+string6  db    'aaron', 0Ah, 0        
 string3  db    'pear', 0Ah, 0         ; third...
 string5  db    'new york', 0Ah, 0
 
@@ -80,11 +81,11 @@ _start:
 
 #         call  insert_tree
 
-         mov   ecx, string3
+         mov   ecx, string2
 
          call  insert_tree
 
-         mov   ecx, string5
+         mov   ecx, string6
 
          call  insert_tree
 
