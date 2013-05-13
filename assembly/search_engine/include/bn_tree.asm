@@ -167,7 +167,7 @@ create_tree:
 
          mov   [eax + 12], dword 0  ; zero out the parent pointer
 
-         mov   [eax + 15], dword 0  ; default height of zero
+         mov   [eax + 16], dword 0  ; default height of zero
 
          mov   [ebx], dword eax  ; head at the first index
 
@@ -289,11 +289,19 @@ double_with_left_child:
 
          mov   ebx, [ebx + 4]    ; parent pointer becomes the left child
 
+         push  rax
+
          call  rotate_with_right_child
+
+         pop   rax
 
          pop   rbx               ; restore the original parent
 
+         push  rax
+
          call  rotate_with_left_child
+
+         pop   rax
 
          ret
 
@@ -327,11 +335,19 @@ double_with_right_child:
 
          mov   ebx, [ebx + 8]    ; parent pointer becomes the right child
 
+         push  rax
+
          call  rotate_with_left_child
+
+         pop   rax
 
          pop   rbx               ; restore the original parent
 
+         push  rax
+
          call  rotate_with_right_child
+
+         pop   rax
 
          ret
 
@@ -431,9 +447,9 @@ insert_tree:
 
          sub   rsp, 8            ; one dword
 
-         mov   [rbp], dword eax  ; save the struct
+         mov   [rbp - 4], dword eax  ; save the struct
 
-         mov   [rbp - 4], dword ecx  ; save the string
+         mov   [rbp - 8], dword ecx  ; save the string
 
          mov   ebx, dword [eax]  ; move into ebx the pointer to the head node
 
@@ -651,7 +667,7 @@ balance:
 
          mov   ecx, [ebx]        ; second string
 
-         mov   ebx, [rbp - 4]    ; first string
+         mov   ebx, [rbp - 8]    ; first string
 
          call  str_cmp           ; call string compare
 
@@ -689,7 +705,7 @@ less_than_balance:
 
          pop   rax               ; clean the stack
 
-         mov   eax, [rbp]    ; pass the pointer to the tree struct
+         mov   eax, [rbp - 4]    ; pass the pointer to the tree struct
 
          js rot_with_left_child
 
@@ -842,95 +858,63 @@ print_tree:
 
          mov   eax, dword [eax]
 
-         cmp   [eax + 4], dword 0         ; if left is null
-
-         mov   ecx, [eax]                 ; pointer to message
-
-         push  rax
-
-         call  str_len
-
-         mov   edx, eax
-
-         pop   rax
-
-         push  rax
-
-         call  print_str
-
-         pop   rax
-
-print_tree_helper:
-
-         cmp   [eax + 4], dword 0         ; if left is null
-
-         je    right
-         
-         push  rax                        ; save the current node
-         
-         mov   eax, [eax + 4]             ; go left
+         push  rax               ; push the arguement
 
          call  print_tree_helper
 
-         mov   ecx, [eax]                 ; pointer to message stored in first memory location
+print_tree_helper:
+
+         push  rbp 
+
+         mov   rbp, rsp
+
+         mov   eax, [rbp + 16]
+
+         cmp   eax, dword 0      ;  if null
+
+         je    ret_print
+
+         push  qword [eax + 4]
+
+         call  print_tree_helper
+
+         mov   eax, [rbp + 16]
+
+         jmp  visit_print
+
+ret_print_tree_helper:
+
+         push  qword [eax + 8]
+
+         call  print_tree_helper
+
+         jmp   ret_print
+
+visit_print:
+
+         mov   ecx, [eax]        ; pointer to message stored in first memory location
 
          push  rax
 
          call  str_len
 
-         mov   edx, eax                   ; must be a dword
+         mov   edx, eax          ; must be a dword
 
          pop   rax
 
-         push  rax                        ; avoid overwriting eax
+         push  rax               ; avoid overwriting eax
 
          call  print_str
 
          pop   rax
 
-         pop   rax                        ; after recursion restore the node
+         jmp   ret_print_tree_helper
 
-         mov   ecx, [eax]                 ; pointer to message stored in first memory location
+ret_print:
 
-         push  rax
+         pop   rbp
 
-         call  str_len
-
-         mov   edx, eax                   ; must be a dword
-
-         pop   rax
-
-         push  rax                        ; avoid overwriting eax
-
-         call  print_str
-
-         pop   rax
-
-right:   cmp   [eax + 8], dword 0         ; if right is null
-
-         je    _return_
-
-         push  rax                        ; save the current node
-
-         mov   eax, [eax + 8]             ; go right
-
-         call print_tree_helper
-
-         mov   ecx, [eax]                 ; pointer to message stored in first memory location
-
-         push  rax
-
-         call  str_len
-
-         mov   edx, eax                   ; must be a dword
-
-         pop   rax
-
-         pop   rax                        ; after recursion restore the node
-
-_return_:
-
-         ret
+         ret   8                 ; break recursion and clean the stack
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1034,7 +1018,7 @@ ret_parent_left:
 
          mov   [ebx + 12], dword eax   ; parent.parent = left_child
 
-         mov   [ebx + 12], dword ecx   ; left_child.parent = parent.parent
+         mov   [eax + 12], dword ecx   ; left_child.parent = parent.parent
 
          mov   ebx, eax
 
@@ -1044,7 +1028,7 @@ ret_parent_left:
 
          mov   eax, dword [rbp - 4]    ; restore the root node
          
-         mov   eax, ebx
+         mov   [eax], dword ebx
 
          jmp   ret_rotate_left
 
@@ -1194,14 +1178,14 @@ ret_parent_right:
          mov   [rax + 16], dword ebx   ; save the height
 
          pop   rbx
-
-         mov   ecx, [eax + 12]   ; right_child.parent
+         
+         mov   ecx, [ebx + 12]   ; parent.parent
 
          ; EAX: right_child, EBX: parent, ECX: right_child.parent
 
-         mov   ecx, dword [ebx + 12]   ; right_child.parent = parent.parent
+         mov   [ebx + 12], dword eax   ; parent.parent = left_child
 
-         mov   [ebx + 12], dword eax
+         mov   [eax + 12], dword ecx   ; left_child.parent = parent.parent
 
          mov   ebx, eax
 
@@ -1211,7 +1195,7 @@ ret_parent_right:
 
          mov   eax, dword [rbp - 4]    ; restore the root node
          
-         mov   eax, ebx
+         mov   [eax], dword ebx
 
          jmp   ret_rotate_right
 
