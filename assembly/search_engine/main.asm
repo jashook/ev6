@@ -18,7 +18,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "bn_tree.asm"
+%include "avl_tree.asm"
 %include "string.asm"
 %include "util.asm"
 
@@ -27,18 +27,12 @@
 
 section .data
 
-string1  db    'apple', 0Ah, 0        ; first string to be compared
-string2  db    'acorn', 0Ah, 0        ; secong string
-;string6  db    'aaron', 0Ah, 0        
-string3  db    'pear', 0Ah, 0         ; third...
-string5  db    'new york', 0Ah, 0
+intro_message  db '/////////////////////////////////////////////////////////////////////////////////\n/////////////////////////////////////////////////////////////////////////////////\n\nMustang Search Engine\n\n/////////////////////////////////////////////////////////////////////////////////\n/////////////////////////////////////////////////////////////////////////////////', 0Ah, 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section .bss
-
-string6  resb  5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -71,25 +65,18 @@ global _start
 
 _start:
 
-         call  create_tree
+         call  user_interface_start
 
-         mov   ecx, string1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-         call  insert_tree
+user_interface_start:
 
-#         mov   ecx, string2
+         mov   ecx, intro_message
 
-#         call  insert_tree
+         call  str_len
 
-         mov   ecx, string3
+         mov   edx, ecx
 
-         call  insert_tree
-
-         mov   ecx, string5
-
-         call  insert_tree
-
-         call  print_tree
-
-         call  _system_exit_
-
+         call print_str
+   
