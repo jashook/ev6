@@ -64,7 +64,7 @@ def mount_vmdk(_Vmdk, _Path = None):
 
    if not _Path: _Path = "/mnt"
 
-   _Command = "vmware-mount " + _Vmdk + " " + _Path
+   _Command = "vmware-mount -f" + _Vmdk + " " + _Path
 
    #os.system(_Command)
 
@@ -74,7 +74,7 @@ def umount_vmdk(_Path = None):
 
    if not _Path: _Path = "\mnt"
 
-   _Command = "vmware-umount " + _Path
+   _Command = "vmware-mount -d" + _Path
 
    #os.system(_Command)
 
