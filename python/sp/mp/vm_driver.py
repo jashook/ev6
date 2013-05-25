@@ -25,15 +25,41 @@ import os
 ################################################################################
 ################################################################################
 
-def clone_vm(_FileName, _SourceFile):
+def clone_vm(_SourceConfig, _SourceDisk, _DestinationConfig, _DestinationDisk):
    # cloning a virtual machine is defined to be copying the vmdk file or virtual
-   # hard drive
+   # hard drive and the .vmx file
 
-   _Command = "cp -r " + "\"" + _FileName + " " + _SourceFile
+   _CopyDiskCommand = "cp" + "\"" + _SourceDisk + "\"" +  " " + _DestinationDisk # long operation, fork to seperate thread
 
-   #os.system(_Command)
+   #os.system(_CopyDiskCommand)
    
-   print _Command
+   print _CopyDiskCommand
+
+   _File = open(_SourceConfig) # default open to read only
+
+   # Check to see if the .vmx file that is being copied will automatically ignore copying the .vmdk file.
+   # If not then add in two lines that will auto answer the prompted message to be true
+ 
+   _Matched = False
+
+   for _Line in _File:
+
+      if re.match("uuid.action = *", _Line): _Matched = True
+
+   _CopyVmxCommand = "cp" + "\"" + _SourceConfig + "\"" + " " + _DestinationConfig
+
+   #os.system(_CopyVmxCommand)
+
+   print _CopyVmxCommand
+
+   if !_Matched:
+
+      _File = open(_DestinationConfig, 'a') # open the new file to append
+
+      _File.write("uuid.action = \"create\"")
+      _File.write("msg.autoAnswer = \"TRUE\"")
+
+   # join before continuing
 
 def cp(_Src, _File):
 

@@ -3,36 +3,30 @@
 ;
 ; Author: Jarret Shook
 ;
-; Module: alloc.asm
+; Module: hash_table.asm
 ;
 ; Modifications:
 ;
-; 26-April-13: Version 1.0: Last Updated 
-; 26-April-13: Version 1.0: Created
+; 20-May-13: Version 1.0: Last Updated 
+; 20-May-13: Version 1.0: Created
 ;
 ; Timeperiod: ev6
 ;
-; Assembler: nasm -f elf64 alloc.asm
-; ld -o alloc alloc.asm
+; Assembler: nasm -f elf64 hash_table.asm
+; ld -o io hash_table.asm
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%ifndef __ALLOC_ASM__
-%define __ALLOC_ASM__
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-%include "io.asm"
+%ifndef __HASH_TABLE_ASM__
+%define __HASH_TABLE_ASM__
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section .data
 
-bad_alloc_message    db    'Error: bad_alloc', 0Ah, 0
-bad_alloc_len        equ   $ - bad_alloc_message
+; Nothing to define
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -49,63 +43,85 @@ section .text
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; Procedure: alloc
+; Procedure: create_hash_table
 ;
 ; Arguements:
 ;
-;     EAX: size in bytes of memory to be allocated
+;     EAX: reserved size of the hash_table
 ;
 ; Uses:
 ;
 ;     EAX
 ;     EBX
 ;     ECX
+;     EDX
 ;
 ; Returns:
 ;
-;     EAX: pointer to the memory allocated
+;     VOID
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-alloc:
+create_hash_table:
 
-         mov   ecx,  eax         ; save the arguements
+         mov   ecx, eax          ; save the size
 
-         mov   eax, 45           ; 45 corresponds to sys_brk
+         mov   eax, 32 * 6       ; size of a hash_table structure
+                                 ; 0: array
+                                 ; 1: size
+                                 ; 2: capacity
+                                 ; 3: collisions
+                                 ; 4: pointer to the first bucket
+                                 ; 5: pointer to the last bucket
 
-         xor   ebx, ebx          ; zero out ebx
+         push  rcx
 
-         int   80h               ; software interupt
+         call  alloc
 
-         add   eax, ecx          ; how much memory to reserve
+         pop   rcx
 
-         mov   ebx, eax          ; set up ebx for sys_brk
+         mov   ebx, eax          ; save eax
 
-         mov   eax, 45           ; sys_brk
+         mov   eax, ecx
 
-         int   80h               
+         push  rbx
 
-         cmp   eax, 0            ; null pointer?
+         push  rcx
 
-         je    bad_alloc         ; if so exit the program
+         call  create_array
 
-         ret                     ; else return
+         pop   rcx
 
-bad_alloc:
+         pop   rbx
 
-         mov   ecx,  bad_alloc_message
-         
-         mov   edx,  bad_alloc_len
+         mov   [ebx], eax
 
-         call  print_str         ; print the c-string in ecx
+         mov   [ebx + 4], 0      ; size starts at 0
 
-         call  _system_exit_     ; exit the program
+         mov   [ebx + 8], ecx    ; capacity is the size of the array
+
+         mov   [ebx + 12], 0     ; first pointer is null
+
+         mov   [ebx + 16], 0     ; last pointer is null
+
+         mov   eax, 0
+
+         mov   ebx, ecx
+
+         mov   ecx, [ebx]
+
+         call  mem_set
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Procedure: insert_hash_table
+;
+; Arguements:
 
-%endif   ; __ALLOC_ASM__
+
+%endif   ; __HASH_TABLE_ASM__
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
