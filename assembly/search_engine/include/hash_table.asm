@@ -119,6 +119,24 @@ create_hash_table:
 ; Procedure: insert_hash_table
 ;
 ; Arguements:
+;
+;     EAX: hash_table structure
+;     EBX: pointer to a string
+;
+; Uses:
+;
+;     EAX
+;     EBX
+;     ECX
+;     EDX
+;
+; Returns:
+;
+;     VOID
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 %endif   ; __HASH_TABLE_ASM__
