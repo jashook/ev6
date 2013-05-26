@@ -16,6 +16,10 @@
 
 class vm:
 
+   def __call__(_Self):
+
+      if _Self._m_function is not None: _Self._m_function(_Self)
+
    def __init__(_Self, _Directory = None, _ConfigFile = None, _DiskFile = None, _ConfigCreated = False, _DiskCreated = False):
 
       ####################################################
@@ -27,6 +31,7 @@ class vm:
       _Self._m_disk_file = _DiskFile
       _Self._m_disk_created = _ConfigCreated
       _Self._m_config_created = _DiskCreated
+      _Self._m_function = None
 
    def disk_created(_Self):
 
@@ -55,6 +60,10 @@ class vm:
    def set_config_created(_Self, _Created):
 
       _Self._m_config_created = _Created
+
+   def set_function(_Self, _Function):
+
+      _Self._m_function = _Function
 
 ################################################################################
 ################################################################################

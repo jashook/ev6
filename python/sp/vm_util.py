@@ -53,6 +53,10 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
       print "Completed copying the virtual disk, joining back to main thread..."
 
       _Thread.set_active(False)
+   
+      _ThreadList.remove(_Thread)
+
+      _ClonedMachine() # callback function is nested inside the virtual machine class
 
    _CopyDiskCommand = "cp " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _ClonedMachine._m_directory + _ClonedMachine._m_disk_file + "\"" # long operation, fork to a seperate thread
 
@@ -69,13 +73,33 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
  
    _Matched = False
 
+   _ReWriteFile = True
+
    for _Line in _File:
 
       if re.match("uuid.action = *", _Line): _Matched = True
 
-   _CopyVmxCommand = "cp " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\"" +  " " + "\"" + _ClonedMachine._m_directory + _ClonedMachine._m_config_file + "\""
+      elif re.match("scsi0:0.fileName = *", _Line):
 
-   os_copy(_CopyVmxCommand)
+         if re.match("scsi0:0.fileName = " + _ClonedMachine._m_disk_file, _Line): _ReWriteFile = False
+
+   _File.close()
+
+   _File = open(_VirtualMachine._m_directory + _VirtualMachine._m_config_file) # default read only
+
+   _Lines = _File.readlines()
+
+   if _ReWriteFile:
+
+      _File = open(_ClonedMachine._m_directory + _ClonedMachine._m_config_file, 'w')
+
+      for _Line in _Lines:
+
+         if not re.match("scsi0:0.fileName = *", _Line): _File.write(_Line)
+
+      _File.write("scsi0:0.fileName = " + "\"" + _ClonedMachine._m_disk_file + "\"")
+
+      _File.write("\n")
 
    _ClonedMachine.set_config_created(True)
  
@@ -140,15 +164,23 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    print _Command
 
+def vmware_run(_VirtualMachine):
+
+   _Command = "vmrun start " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\""
+
+   print _Command
+
+   os.system(_Command)
+
 if __name__ == '__main__':
 
    _File = "hello.txt"
 
    _Path = "\media\hdd"
 
-   _WorkingDirectory = "/home/jarret/vmware/Ubuntu 64-bit (3)/"
+   _WorkingDirectory = "/home/jarret/vmware/Ubuntu 64-bit/"
 
-   _DestinationDirectory = "/media/hdd0/"
+   _DestinationDirectory = "/media/hdd0/Virtual Machines/"
 
    _Vmx, _Vmdk = find_files(_WorkingDirectory)
 
@@ -159,6 +191,8 @@ if __name__ == '__main__':
    _Vmdk = "New Windows.vmdk"
 
    _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, False, False)
+
+   _ClonedMachine.set_function(vmware_run)
 
    clone_vm(_VirtualMachine, _ClonedMachine)
 
@@ -175,7 +209,3 @@ if __name__ == '__main__':
          print "Thread joining..."
 
          _Thread.join() # if alive join
-
-         # after the thread is joined it will be dead
-
-         _Thread.set_alive(False)
