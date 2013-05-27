@@ -164,13 +164,41 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    print _Command
 
-def vmware_run(_VirtualMachine):
+def vmware_entry_point(_VirtualMachine):
+
+   _Thread = heavy_thread(vmware_run, (_VirtualMachine, _Thread))
+
+   _Thread.start()
+
+def vmware_is_running(_VirtualMachine):
+
+   _Command = "vmrun list >> running_vms.txt"
+
+   #os.system(_Command)
+
+   print _Command
+
+   _File = open("running_vms.txt")
+
+   _Running = False
+
+   for _Line in _File:
+
+      if re.match("*" + _VirtualMachine._m_config_file + "*", _Line): _Running = True
+
+   return _Running
+
+def vmware_run(_VirtualMachine, _Thread):
 
    _Command = "vmrun start " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\""
 
    print _Command
 
    os.system(_Command)
+
+   while vmware_is_running(_VirtualMachine):
+
+      _Thread.sleep(5000) # sleep for 5 seconds
 
 if __name__ == '__main__':
 
@@ -192,7 +220,7 @@ if __name__ == '__main__':
 
    _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, False, False)
 
-   _ClonedMachine.set_function(vmware_run)
+   _ClonedMachine.set_function(vmware_entry_point)
 
    clone_vm(_VirtualMachine, _ClonedMachine)
 
