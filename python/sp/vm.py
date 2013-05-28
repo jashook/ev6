@@ -32,6 +32,7 @@ class vm:
       _Self._m_disk_created = _ConfigCreated
       _Self._m_config_created = _DiskCreated
       _Self._m_function = None
+      _Self._m_thread = None
 
    def disk_created(_Self):
 

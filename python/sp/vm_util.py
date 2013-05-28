@@ -22,6 +22,9 @@
 
 from heavy_thread import heavy_thread
 
+from multiprocessing import Value
+
+from threading import Lock
 import os
 import re
 
@@ -31,6 +34,10 @@ from vm import vm
 ################################################################################
 
 _ThreadList = [] # empty thread list
+
+_MachineCount = Value('i', 0) # integer value that will be shared between threads
+
+_Lock = Lock()
 
 def clone_vm(_VirtualMachine, _ClonedMachine):
    # cloning a virtual machine is defined to be copying the vmdk file or virtual
@@ -164,47 +171,7 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    print _Command
 
-def vmware_entry_point(_VirtualMachine):
-
-   _Thread = heavy_thread(vmware_run, (_VirtualMachine, _Thread))
-
-   _Thread.start()
-
-def vmware_is_running(_VirtualMachine):
-
-   _Command = "vmrun list >> running_vms.txt"
-
-   #os.system(_Command)
-
-   print _Command
-
-   _File = open("running_vms.txt")
-
-   _Running = False
-
-   for _Line in _File:
-
-      if re.match("*" + _VirtualMachine._m_config_file + "*", _Line): _Running = True
-
-   return _Running
-
-def vmware_run(_VirtualMachine, _Thread):
-
-   _Command = "vmrun start " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\""
-
-   print _Command
-
-   os.system(_Command)
-
-   while vmware_is_running(_VirtualMachine):
-
-      _Thread.sleep(5000) # sleep for 5 seconds
-
-if __name__ == '__main__':
-
-   _File = "hello.txt"
-
-   _Path = "\media\hdd"
+def vmware_create():
 
    _WorkingDirectory = "/home/jarret/vmware/Ubuntu 64-bit/"
 
@@ -222,11 +189,79 @@ if __name__ == '__main__':
 
    _ClonedMachine.set_function(vmware_entry_point)
 
+   # increasing machine count ** need to lock **
+
+   _Lock.acquire()
+
+   _MachineCount.value = _MachineCount.value + 1
+
+   _Lock.release() # synchronize finished
+
    clone_vm(_VirtualMachine, _ClonedMachine)
 
-   mount_vmdk(_ClonedMachine, _Path)
+   return _ClonedMachine
 
-   umount_vmdk(_ClonedMachine, _Path)
+def vmware_entry_point(_VirtualMachine):
+
+   _Thread = heavy_thread(vmware_run, (_VirtualMachine, _MachineCount))
+
+   _ThreadList.append(_Thread)
+
+   _VirtualMachine._m_thread = _Thread
+
+   # pre run code here
+
+   _Thread.start()
+
+def vmware_is_running(_VirtualMachine):
+
+   _Command = "vmrun list >> running_vms.txt"
+
+   os.system(_Command)
+
+   _File = open("running_vms.txt")
+
+   _Running = False
+
+   for _Line in _File:
+
+      if re.match(_VirtualMachine._m_directory + _VirtualMachine._m_config_file, _Line): _Running = True
+
+   _File.close()
+
+   _File = open("running_vms.txt", 'w')
+
+   _File.close()
+
+   return _Running
+
+def vmware_run(_VirtualMachine, _MachineCount):
+
+   _Thread = _VirtualMachine._m_thread
+
+   _Command = "vmrun start " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\""
+
+   print _Command
+
+   os.system(_Command)
+
+   while True:
+
+      if not vmware_is_running(_VirtualMachine): break
+
+      _Thread.sleep(2.5) # sleep for 2.5 seconds
+  
+   # decreasing machine count ** need to lock **
+
+   _Lock.acquire()
+
+   _MachineCount.value = _MachineCount.value - 1
+
+   _Lock.release() # synchronize finished
+
+if __name__ == '__main__'
+
+   _ClonedMachine = vmware_create()
 
    # go through the list of threads and join them to the main thread so they are not prematurely stopped
 
