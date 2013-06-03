@@ -38,10 +38,13 @@ _ThreadList = [] # empty thread list
 _MachineCount = Value('i', 0) # integer value that will be shared between threads
 
 _Lock = Lock()
+_CloneLock = Lock()
 
 def clone_vm(_VirtualMachine, _ClonedMachine):
    # cloning a virtual machine is defined to be copying the vmdk file or virtual
    # hard drive and the .vmx file
+
+   _CloneLock.acquire() # extremely ram intensive process therefore cloning will only be allowed to one at a time
 
    def _os_clone_and_copy(_StartArg):
 
@@ -62,6 +65,8 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
       _Thread.set_active(False)
    
       _ThreadList.remove(_Thread)
+
+      _CloneLock.release()
 
       _ClonedMachine() # callback function is nested inside the virtual machine class
 
@@ -171,19 +176,15 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    print _Command
 
-def vmware_create():
-
-   _WorkingDirectory = "/home/jarret/vmware/Ubuntu 64-bit/"
-
-   _DestinationDirectory = "/media/hdd0/Virtual Machines/"
+def vmware_create(_WorkingDirectory, _DestinationDirectory, _NewVmx, _NewVmdk):
 
    _Vmx, _Vmdk = find_files(_WorkingDirectory)
 
    _VirtualMachine = vm(_WorkingDirectory, _Vmx, _Vmdk, True, True)
 
-   _Vmx = "New Windows.vmx"
+   _Vmx = _NewVmx
 
-   _Vmdk = "New Windows.vmdk"
+   _Vmdk = _NewVmdk
 
    _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, False, False)
 
@@ -259,9 +260,9 @@ def vmware_run(_VirtualMachine, _MachineCount):
 
    _Lock.release() # synchronize finished
 
-if __name__ == '__main__'
+if __name__ == '__main__':
 
-   _ClonedMachine = vmware_create()
+   _ClonedMachine = vmware_create("/home/jarret/vmware/Ubuntu 64-bit/", "/media/hdd/Virtual Machines/", "New Windows.vmx", "New Windows.vmdk")
 
    # go through the list of threads and join them to the main thread so they are not prematurely stopped
 
