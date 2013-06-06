@@ -4,7 +4,7 @@
 #
 # Author: Jarret Shook
 #
-# Module: vm_driver.py
+# Module: vm_util.py
 #
 # Modifications:
 #
@@ -12,19 +12,12 @@
 #
 # Timeperiod: ev6
 #
-# Notes:
-#
-#   A simple python script that starts and runs a python script (a) virtual machine(s)
-#   At the moment the script only supports starting a python script on a windows machine
-#
 ################################################################################
 ################################################################################
 
 from heavy_thread import heavy_thread
 
-from multiprocessing import Value
-
-from threading import Lock
+from multiprocessing import Value, Lock
 import os
 import re
 
@@ -260,16 +253,12 @@ def vmware_run(_VirtualMachine, _MachineCount):
 
    _Lock.release() # synchronize finished
 
-if __name__ == '__main__':
-
-   _ClonedMachine = vmware_create("/home/jarret/vmware/Ubuntu 64-bit/", "/media/hdd/Virtual Machines/", "New Windows.vmx", "New Windows.vmdk")
-
-   # go through the list of threads and join them to the main thread so they are not prematurely stopped
+def vmware_join():
 
    for _Thread in _ThreadList:
 
-      if _Thread.is_active(): 
+      if _Thread.is_active():
 
          print "Thread joining..."
 
-         _Thread.join() # if alive join
+         _Thread.join() #if alive join
