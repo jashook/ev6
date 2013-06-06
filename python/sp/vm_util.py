@@ -147,9 +147,9 @@ def mount_vmdk(_VirtualMachine, _Path = None):
 
    if not _Path: _Path = "/mnt"
 
-   _Command = "vmware-mount -f " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _Path + "\""
+   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _Path + "\""
 
-   #os.system(_Command)
+   os.system(_Command)
 
    print _Command
 
@@ -165,21 +165,21 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    _Command = "vmware-mount -d " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _Path + "\""
 
-   #os.system(_Command)
+   os.system(_Command)
 
    print _Command
 
-def vmware_create(_WorkingDirectory, _DestinationDirectory, _NewVmx, _NewVmdk):
+def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None, _NewVmx = "default.vmx", _NewVmdk = "default.vmdk"):
 
    _Vmx, _Vmdk = find_files(_WorkingDirectory)
 
-   _VirtualMachine = vm(_WorkingDirectory, _Vmx, _Vmdk, True, True)
+   _VirtualMachine = vm(_WorkingDirectory, _Vmx, _Vmdk, _StartUpFile, True, True)
 
    _Vmx = _NewVmx
 
    _Vmdk = _NewVmdk
 
-   _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, False, False)
+   _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, _StartUpFile, False, False)
 
    _ClonedMachine.set_function(vmware_entry_point)
 
@@ -205,7 +205,11 @@ def vmware_entry_point(_VirtualMachine):
 
    # pre run code here
 
+   _VirtualMachine.pre_run_function()
+
    _Thread.start()
+
+   _VirtualMachine.post_run_function()
 
 def vmware_is_running(_VirtualMachine):
 

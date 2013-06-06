@@ -20,7 +20,7 @@ class vm:
 
       if _Self._m_function is not None: _Self._m_function(_Self)
 
-   def __init__(_Self, _Directory = None, _ConfigFile = None, _DiskFile = None, _ConfigCreated = False, _DiskCreated = False):
+   def __init__(_Self, _Directory = None, _ConfigFile = None, _DiskFile = None, _StartupFile = None, _ConfigCreated = False, _DiskCreated = False):
 
       ####################################################
       # Member Variables
@@ -32,6 +32,9 @@ class vm:
       _Self._m_disk_created = _ConfigCreated
       _Self._m_config_created = _DiskCreated
       _Self._m_function = None
+      _Self._m_pre_run_function = "vmware_pre_run"
+      _Self._m_post_run_function = "vmware_post_run"
+      _Self._m_startup_file = _StartupFile
       _Self._m_thread = None
 
    def disk_created(_Self):
@@ -65,6 +68,26 @@ class vm:
    def set_function(_Self, _Function):
 
       _Self._m_function = _Function
+
+   def set_pre_run_function(_Self, _Function):
+
+      _Self._m_pre_run_function = _Function
+
+   def set_post_run_function(_Self, _Function):
+
+      _Self._m_post_run_function = _Function
+
+   def set_startup_file(_Self, _File):
+
+      _Self._m_startup_file = _File
+
+   def pre_run_function(_Self):
+
+      _Self._m_pre_run_function(_Self)
+
+   def post_run_function(_Self):
+
+      _Self._m_post_run_function(_Self)
 
 ################################################################################
 ################################################################################

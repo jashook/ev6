@@ -38,8 +38,8 @@ def determine_parameters():
       # -v = virtual machine
       # -d = destination
       # -c = number of concurrent machines
-      # -s = startup file
-      # -bs = background script
+      # -s = startup script
+      # -es = entry and exit script
       # --help = help
 
       if _Parameter == "-v": return True
@@ -50,7 +50,7 @@ def determine_parameters():
 
       elif _Parameter == "-s": return True
 
-      elif _Parameter == "-bs": return True
+      elif _Parameter == "-es": return True
 
       elif _Parameter == "--help": return True
 
@@ -96,7 +96,7 @@ def determine_parameters():
 
             elif (_LastParameter == "-s"): _Parameters[2] = _Parameter
 
-            elif (_LastParameter == "-bs"): _Parameters[3] = _Parameter
+            elif (_LastParameter == "-es"): _Parameters[3] = _Parameter
 
             elif (_LastParameter == "-d"): _Parameters[4] = _Parameter
 
@@ -120,7 +120,7 @@ def determine_parameters():
 
    return _Parameters
 
-def main(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _BackgroundScript):
+def main(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _EntryExitScript):
 
    if _VirtualMachine == None: 
 
@@ -134,17 +134,19 @@ def main(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _Backgr
 
       exit()
 
-   elif _StartupFile == None and _BackgroundScript == None:
+   if _EntryExitScript == None:
 
-      start_machines(_VirtualMachine, _NumberOfMachines, _StartupFile, _BackgroundScript, False, False)
+      print "Error you must provide a python script that defines an vmware_pre_run and vmware_post_run function at a minimum"
 
-   elif _StartupFile == None and _BackgroundScript != None:
+      exit()
 
-      start_machines(_VirtualMachine, _NumberOfMachines, _StartupFile, _BackgroundScript, False, True)
+   elif _StartupFile == None:
 
-   elif _StartupFile != None and _BackgroundScript != None:
+      start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _EntryExitScript, False)
 
-      start_machines(_VirtualMachine, _NumberOfMachines, _StartupFile, _BackgroundScript, True, True)
+   elif _StartupFile != None:
+
+      start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _EntryExitScript, True)
 
 def print_help():
 
@@ -158,23 +160,23 @@ def print_help():
 
    print "-s path to a startup file that will be run on the cloned machine"
 
-   print "-bs path to a script to be run in the background while a vm machine is running"
+   print "-es path to a script containing an entry and exit function"
 
    print "-c amount of concurrent machines"
 
    print "--help help"
 
-def start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _BackgroundScript, _IsStartupFile, _IsBackgroundScript):
+def start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _ExitFile, _IsStartupFile):
 
-   _NewVmdk = _NewMachineName + ".vmdk"
+   _NewVmdk = "NewMachine" + ".vmdk"
 
-   _NewVmx = _NewMachineName + ".vmx"
+   _NewVmx = "NewMachine" + ".vmx"
 
    for _Number in range(_NumberOfMachines):
 
       if not _IsStartupFile: _ClonedMachine = vmware_create(_VirtualMachine, _Destination, _NewVmx, _NewVmdk)
 
-      else: vmware_create(_VirtualMachine, _Destination, _NewVmx, _NewVmdk)
+      else: vmware_create(_VirtualMachine, _Destination, _StartupFile, _NewVmx, _NewVmdk)
 
 if __name__ == '__main__':
 
@@ -184,7 +186,7 @@ if __name__ == '__main__':
 
    _Destination = None
 
-   _NumberOfMachines = 0
+   _NumberOfMachines = 1
 
    _StartupFile = None
    
@@ -204,15 +206,19 @@ if __name__ == '__main__':
 
    if _Parameters[2] != None:
 
-      _Script = _Parameters[2]
+      _StartupFile = _Parameters[2]
 
    if _Parameters[3] != None:
 
-      _NumberOfMachines = _Parameters[3]
+      _Script = _Parameters[3]
 
    if _Parameters[1] != None:
 
-      _StartupFile = _Parameters[1]
+      _NumberOfMachines = _Parameters[1]
+
+   if _Parameters[4] != None:
+
+      _Destination = _Parameters[4]
 
    main(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFile, _Script)
 
