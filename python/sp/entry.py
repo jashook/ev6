@@ -15,7 +15,7 @@
 ################################################################################
 ################################################################################
 
-from vm_util import *
+import vm_util
 
 ################################################################################
 ################################################################################
@@ -24,11 +24,15 @@ def vmware_pre_run(_VirtualMachine):
 
    if _VirtualMachine._m_startup_file != None:
 
-      #mount_vmdk(_VirtualMachine)
+      vm_util.mount_vmdk(_VirtualMachine, _VirtualMachine._m_mount_directory)
 
-      _Command = "cp " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_startup_file + "\"" + " " + "\"" + "/mnt/Users/jarret/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup" + "\""
+      _Command = "cp " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_startup_file + "\"" + " " + "\"" + _VirtualMachine._m_mount_directory + "Users/jarret/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup" + "\""
 
       print _Command
+
+      #os.system(_Command)
+
+      vm_util.umount_vmdk(_VirtualMachine)
 
 def vmware_post_run(_VirtualMachine):
 

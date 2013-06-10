@@ -23,6 +23,7 @@
 from vm_util import *
 
 import sys
+import time
 
 ################################################################################
 ################################################################################
@@ -172,21 +173,59 @@ def start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFil
 
    _NewVmx = "NewMachine" + ".vmx"
 
+   _MachinesOnDisk = dict()
+
    for _Number in range(_NumberOfMachines):
 
-      _NewDir = "NewMachine" + str(_Number) + "/"
+      _Filename = "NewMachine" + str(_Number)
 
-      _NewDir = _Destination + _NewDir
+      _MachinesOnDisk[_Filename] = None
 
-      _Command = "mkdir " + "\"" + _NewDir + "\""
+   for _FileName in os.listdir(_Destination):
 
-      print _Command
+      _MachinesOnDisk[_FileName] = 1
 
-      os.system(_Command)
+   for _Number in range(_NumberOfMachines):
 
-      if not _IsStartupFile: _ClonedMachine = vmware_create(_VirtualMachine, _Destination, _NewVmx, _NewVmdk)
+      _NewName = "NewMachine" + str(_Number)
 
-      else: vmware_create(_VirtualMachine, _NewDir, _StartupFile, _NewVmx, _NewVmdk)
+      _NewDir = _Destination + _NewName + "/"
+
+      _CloneMachine = False # assume the machine exists
+
+      if _MachinesOnDisk[_NewName] is None:
+
+         _CloneMachine = True # else if it is not found then clone
+
+         _Command = "mkdir " + "\"" + _NewDir + "\""
+
+         print _Command
+
+         os.system(_Command)
+
+         _Command = "mkdir " + "\"" + _NewDir + "mnt/" + "\""
+
+         print _Command
+
+         os.system(_Command)
+
+      else: 
+
+         print "Found old machine, attempting to use that Virtual Machine"
+
+         print "Reverting to snapshot"
+
+         _Command = "vmrun -T ws revertToSnapshot " + "\"" + _NewDir + _NewVmx + "\"" + " NewMachineSnapshot"
+
+         os.system(_Command)
+
+         time.sleep(5)
+
+         print "Reverted to snapshot, continuing execution..."
+
+      if not _IsStartupFile: _ClonedMachine = vmware_create(_VirtualMachine, _NewDir, _NewVmx, _NewVmdk, _CloneMachine)
+
+      else: vmware_create(_VirtualMachine, _NewDir, _StartupFile, _NewVmx, _NewVmdk, _CloneMachine)
 
 if __name__ == '__main__':
 

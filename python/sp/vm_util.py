@@ -32,6 +32,7 @@ _MachineCount = Value('i', 0) # integer value that will be shared between thread
 
 _Lock = Lock()
 _CloneLock = Lock()
+_MountLock = Lock()
 
 def clone_vm(_VirtualMachine, _ClonedMachine):
    # cloning a virtual machine is defined to be copying the vmdk file or virtual
@@ -52,6 +53,16 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
       _ClonedMachine.set_disk_created(True)
 
       if _ClonedMachine.disk_created(): print "Disk Cloned"
+
+      _Command = "vmrun -T ws snapshot " + "\"" + _ClonedMachine._m_directory + _ClonedMachine._m_config_file + "\"" + " NewMachineSnapShot"
+
+      print "Creating Snapshot"
+
+      os.system(_Command)
+
+      print "Snapshot Created continuing..."
+
+      _Thread.sleep(1) # make sure the snapshot finishes before starting
 
       print "Completed copying the virtual disk, joining back to main thread..."
 
@@ -145,13 +156,17 @@ def find_files(_Path):
 
 def mount_vmdk(_VirtualMachine, _Path = None):
 
+   _MountLock.acquire() # make sure not to overmount a previous mount
+
    if not _Path: _Path = "/mnt"
 
-   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _Path + "\""
+   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " 1 " + "\"" + _Path + "\""
 
    os.system(_Command)
 
    print _Command
+
+   _MountLock.release()
 
 def os_copy(_Command):
 
@@ -163,13 +178,13 @@ def umount_vmdk(_VirtualMachine, _Path = None):
 
    if not _Path: _Path = "\mnt"
 
-   _Command = "vmware-mount -d " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _Path + "\""
+   _Command = "vmware-mount -d " + "\"" + _VirtualMachine._m_mount_directory + "\""
 
    os.system(_Command)
 
    print _Command
 
-def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None, _NewVmx = "default.vmx", _NewVmdk = "default.vmdk"):
+def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None, _NewVmx = "default.vmx", _NewVmdk = "default.vmdk", _CloneMachine = True):
 
    _Vmx, _Vmdk = find_files(_WorkingDirectory)
 
@@ -179,7 +194,13 @@ def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None,
 
    _Vmdk = _NewVmdk
 
-   _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, _StartUpFile, False, False)
+   if _CloneMachine:
+
+      _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, _StartUpFile, False, False)
+
+   else:
+
+      _ClonedMachine = vm(_DestinationDirectory, _Vmx, _Vmdk, _StartUpFile, True, True)
 
    _ClonedMachine.set_function(vmware_entry_point)
 
@@ -191,7 +212,11 @@ def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None,
 
    _Lock.release() # synchronize finished
 
-   clone_vm(_VirtualMachine, _ClonedMachine)
+   if _CloneMachine: clone_vm(_VirtualMachine, _ClonedMachine)
+
+   else: 
+
+      _ClonedMachine() # if the machine is created then just run it
 
    return _ClonedMachine
 
@@ -207,9 +232,10 @@ def vmware_entry_point(_VirtualMachine):
 
    _VirtualMachine.pre_run_function()
 
+   _Thread.set_active(True)
+
    _Thread.start()
 
-   _VirtualMachine.post_run_function()
 
 def vmware_is_running(_VirtualMachine):
 
@@ -241,7 +267,25 @@ def vmware_run(_VirtualMachine, _MachineCount):
 
    print _Command
 
+   _Thread.sleep(2)
+
    os.system(_Command)
+
+   _Thread.sleep(1)
+
+   _Count = 0
+
+   while vmware_is_running(_VirtualMachine) is False:
+
+      _Thread.sleep(10) # sleep for a little to make sure it does not prematurely exit
+
+      if _Count > 2: 
+
+         print "Timeout..."
+
+         break
+
+      _Count = _Count + 1
 
    while True:
 
@@ -256,6 +300,10 @@ def vmware_run(_VirtualMachine, _MachineCount):
    _MachineCount.value = _MachineCount.value - 1
 
    _Lock.release() # synchronize finished
+
+   _VirtualMachine.post_run_function()
+
+   _Thread.set_active(False)
 
 def vmware_join():
 
