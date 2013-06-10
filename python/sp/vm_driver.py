@@ -174,9 +174,19 @@ def start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFil
 
    for _Number in range(_NumberOfMachines):
 
+      _NewDir = "NewMachine" + str(_Number) + "/"
+
+      _NewDir = _Destination + _NewDir
+
+      _Command = "mkdir " + "\"" + _NewDir + "\""
+
+      print _Command
+
+      os.system(_Command)
+
       if not _IsStartupFile: _ClonedMachine = vmware_create(_VirtualMachine, _Destination, _NewVmx, _NewVmdk)
 
-      else: vmware_create(_VirtualMachine, _Destination, _StartupFile, _NewVmx, _NewVmdk)
+      else: vmware_create(_VirtualMachine, _NewDir, _StartupFile, _NewVmx, _NewVmdk)
 
 if __name__ == '__main__':
 
@@ -214,7 +224,7 @@ if __name__ == '__main__':
 
    if _Parameters[1] != None:
 
-      _NumberOfMachines = _Parameters[1]
+      _NumberOfMachines = int(_Parameters[1])
 
    if _Parameters[4] != None:
 
