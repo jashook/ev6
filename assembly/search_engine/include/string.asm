@@ -53,6 +53,9 @@ section .text
 ;
 ; Arguements:
 ;
+;     const char*: pointer to an array of characters (c-string) on the stack
+;     const char*: pointer to an array of characters (c-string) on the stack
+;
 ;     EBX: pointer to an array of characters (c-string)
 ;     ECX: pointer to a second array of characters
 ;
@@ -86,6 +89,8 @@ cmp_ret:
          pop   rcx               ; get the origional string
    
          pop   rbx               ; get the second origional string
+
+         pop   rbp
 
          ret
 

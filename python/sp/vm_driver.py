@@ -219,7 +219,7 @@ def start_machines(_VirtualMachine, _Destination, _NumberOfMachines, _StartupFil
 
          os.system(_Command)
 
-         time.sleep(5)
+         time.sleep(10)
 
          print "Reverted to snapshot, continuing execution..."
 

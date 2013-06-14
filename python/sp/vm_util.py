@@ -60,9 +60,11 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
 
       os.system(_Command)
 
-      print "Snapshot Created continuing..."
+      _Thread.sleep(15) # make sure the snapshot finishes before starting
 
-      _Thread.sleep(1) # make sure the snapshot finishes before starting
+      _ClonedMachine._m_disk_file = find_snapshot(_ClonedMachine)
+
+      print "Snapshot Created continuing..."
 
       print "Completed copying the virtual disk, joining back to main thread..."
 
@@ -74,7 +76,7 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
 
       _ClonedMachine() # callback function is nested inside the virtual machine class
 
-   _CopyDiskCommand = "cp " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + "\"" + _ClonedMachine._m_directory + _ClonedMachine._m_disk_file + "\"" # long operation, fork to a seperate thread
+   _CopyDiskCommand = "vmware-vdiskmanager -r " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " -t 0 " + "\"" + _ClonedMachine._m_directory + _ClonedMachine._m_disk_file + "\"" # long operation, fork to a seperate thread
 
    _Thread = heavy_thread(_os_clone_and_copy, (_CopyDiskCommand,))
 
@@ -154,13 +156,36 @@ def find_files(_Path):
 
    return _Vmx, _Vmdk
 
-def mount_vmdk(_VirtualMachine, _Path = None):
+def find_snapshot(_VirtualMachine):
+
+   _Vmdks = list()
+
+   for _FileName in os.listdir(_VirtualMachine._m_directory):
+
+      _Extension = _FileName[-5::] # .vmdk is 5 characters long
+
+      if _Extension == ".vmdk": _Vmdks.append(_FileName)
+
+   _Vmdk = None
+
+   _Min = 0
+
+   for _File in _Vmdks:
+
+      if len(_File) > _Min:
+
+         _Min = len(_File)
+         _Vmdk = _File
+
+   return _Vmdk
+
+def mount_vmdk(_VirtualMachine, _PartitionNumber = 1, _Path = None):
 
    _MountLock.acquire() # make sure not to overmount a previous mount
 
    if not _Path: _Path = "/mnt"
 
-   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " 1 " + "\"" + _Path + "\""
+   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + str(_PartitionNumber) + " " + "\"" + _Path + "\""
 
    os.system(_Command)
 
@@ -215,6 +240,8 @@ def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None,
    if _CloneMachine: clone_vm(_VirtualMachine, _ClonedMachine)
 
    else: 
+
+      _ClonedMachine._m_disk_file = find_snapshot(_ClonedMachine)
 
       _ClonedMachine() # if the machine is created then just run it
 
@@ -275,17 +302,35 @@ def vmware_run(_VirtualMachine, _MachineCount):
 
    _Count = 0
 
+   _Retried = False
+
    while vmware_is_running(_VirtualMachine) is False:
 
       _Thread.sleep(10) # sleep for a little to make sure it does not prematurely exit
+
+      if _Retried is True and _Count > 2:
+
+         print "Second Timeout, quitting..."
+
+         break
 
       if _Count > 2: 
 
          print "Timeout..."
 
-         break
+         print "Virtual Machine failed to start, retrying.."
 
-      _Count = _Count + 1
+         _Command = "vmrun start " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_config_file + "\""
+
+         print _Command
+
+         _Count = 0
+
+         _Retried = True
+
+      else:
+      
+         _Count = _Count + 1
 
    while True:
 

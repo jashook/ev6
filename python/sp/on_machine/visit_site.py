@@ -27,14 +27,16 @@ import os
 
 if __name__ == '__main__':
    
-   if (len(sys.argv) == 2): 
+   #if (len(sys.argv) == 2): 
 
-      _Command = "\"" + "C:\Program Files\Internet Explorer\iexplore.exe" + "\"" + " " + sys.argv[1]
+      _Command = "\"" + "C:\Program Files\Internet Explorer\iexplore.exe" + "\"" + " " + "google.com"
 
       print _Command
 
-      #os.system(_Command)
+      os.system(_Command)
 
-   else:
+      os.system("PAUSE")
 
-      print "Error incorrect number of arguements.  Expected (script) (url to visit)"
+   #else:
+
+      #print "Error incorrect number of arguements.  Expected (script) (url to visit)"
