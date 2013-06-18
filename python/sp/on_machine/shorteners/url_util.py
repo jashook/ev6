@@ -1,32 +1,20 @@
-#!/usr/bin/env python
+#/usr/bin/env python
 ################################################################################
 ################################################################################
 #
 # Author: Jarret Shook
 #
-# Module: ht_test.py
+# Module: url_util.py
 #
 # Modifications:
 #
-# 1-April-13: Version 1.0: Last Updated
-# 1-April-13: Version 1.0: Created
+# 18-June-13: Version 1.0: Last Updated
+# 18-June-13: Version 1.0: Created
 #
 # Timeperiod: ev6
 #
 ################################################################################
 ################################################################################
 
-from heavy_thread import heavy_thread
-
 ################################################################################
 ################################################################################
-
-def foo(_Args):
-
-   print _Args
-
-if __name__ == '__main__':
-
-   ht = heavy_thread(foo, ('hello',))
-   ht.start()
-   ht.join()

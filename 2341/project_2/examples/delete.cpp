@@ -34,7 +34,7 @@ int main()
    do_another_thing(_Ptr);
    do_something_weird(_Ptr);   
 
-   delete _Ptr;
+   //delete _Ptr;
 
    return 0;
 }
@@ -52,7 +52,9 @@ void do_another_thing(char* _Ptr)
 void do_something_weird(char* _Ptr)
 {
 
-   _Ptr[SIZE / 2] = '?';
+   _Ptr[0] = '?';
+
+   _Ptr[SIZE-1] = 'h';
 
    for (std::size_t i = 0; i < SIZE; ++i)
    {

@@ -8,14 +8,13 @@
 #
 # Modifications: 
 #
+# 17-June-13: Version 1.0: Last Updated
 # 28-May-13: Version 1.0: Created
 #
 # Timeperiod: ev6
 #
 # Notes:
 #
-#     The Background script provided must have an script_entry_point function
-#     defined
 #
 ################################################################################
 ################################################################################
