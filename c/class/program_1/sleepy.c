@@ -43,6 +43,8 @@ void sleep_run(size_t _RunningTime)
 
    _ProcessID = getpid(); /* get the process id for the current running process or thread of execution */
 
+   /* the pid is not always the same */
+
    printf("%i, START\n", (int)_ProcessID);
 
    for (_Count = 1; _Count < _RunningTime + 1; ++_Count)
