@@ -41,6 +41,7 @@ class vm:
       _Self._m_disk_created = _ConfigCreated
       _Self._m_config_created = _DiskCreated
       _Self._m_function = None
+      _Self._m_collection = None
       _Self._m_startup_file = _StartupFile
       _Self._m_thread = None
 

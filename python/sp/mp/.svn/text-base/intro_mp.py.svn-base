@@ -4,32 +4,30 @@
 #
 # Author: Jarret Shook
 #
-# Module: visit_site.py
+# Module: intro_mp.py
 #
 # Modifications:
 #
-# 5-May-13: Version 1.0: Created
+# 1-April-13: Version 1.0: Created
 #
-# Notes:
-#
-#     uses the cmd line in windows to launch ie(any version) and to go to the 
-#     website given as a command line parameter
+# Timeperiod: ev6
 #
 ################################################################################
 ################################################################################
 
-import sys
-import os
+from multiprocessing import Process
 
 ################################################################################
 ################################################################################
+
+def foo(_String):
+
+   print _String
 
 if __name__ == '__main__':
 
-   _Command = "\"" + "C:\Program Files\Internet Explorer\iexplore.exe" + "\"" + " " + "google.com"
+   p = Process(target = foo, args = ('Bienvenue au nouveau monde',))
 
-   print _Command
-
-   os.system(_Command)
-
-   os.system("PAUSE")
+   p.start()
+   
+   p.join()

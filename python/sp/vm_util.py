@@ -35,6 +35,9 @@ _Lock = Lock()
 _CloneLock = Lock()
 _MountLock = Lock()
 
+_NumLock = Lock()
+_CollectionNumber = 0
+
 def clone_vm(_VirtualMachine, _ClonedMachine):
    # cloning a virtual machine is defined to be copying the vmdk file or virtual
    # hard drive and the .vmx file
@@ -82,6 +85,16 @@ def clone_vm(_VirtualMachine, _ClonedMachine):
    _Thread = heavy_thread(_os_clone_and_copy, (_CopyDiskCommand,))
 
    _ThreadList.append(_Thread)
+
+   _CollectionNumber = get_number()
+
+   _DirCommand = "mkdir " + "\"" + "/home/jarret/Virtual Machines/collected/virtual_machine" + str(_CollectionNumber) + "\""
+
+   _ClonedMachine._m_collection = "/home/jarret/Virtual Machines/collected/virtual_machine" + str(_CollectionNumber)
+
+   print _DirCommand
+
+   os.system(_DirCommand)
 
    _Thread.start()
 
@@ -180,13 +193,39 @@ def find_snapshot(_VirtualMachine):
 
    return _Vmdk
 
+def get_number():
+
+   _NumLock.acquire()
+
+   global _CollectionNumber
+
+   if (_CollectionNumber is 0):
+
+      for _FileName in os.listdir("/home/jarret/Virtual Machines/collected/"):
+
+         _OldNumber = _CollectionNumber
+
+         _CollectionNumber = int(_FileName[-1:])
+
+         if (_CollectionNumber < _OldNumber): _CollectionNumber = _OldNumber
+
+      _CollectionNumber =  _CollectionNumber + 1
+
+   _Num = _CollectionNumber
+
+   _CollectionNumber = _CollectionNumber + 1
+
+   _NumLock.release()
+
+   return _Num
+
 def mount_vmdk(_VirtualMachine, _PartitionNumber = 1, _Path = None):
 
    _MountLock.acquire() # make sure not to overmount a previous mount
 
    if not _Path: _Path = "/mnt"
 
-   _Command = "vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + str(_PartitionNumber) + " " + "\"" + _Path + "\""
+   _Command = "sudo vmware-mount " + "\"" + _VirtualMachine._m_directory + _VirtualMachine._m_disk_file + "\"" + " " + str(_PartitionNumber) + " " + "\"" + _Path + "\""
 
    os.system(_Command)
 
@@ -243,6 +282,16 @@ def vmware_create(_WorkingDirectory, _DestinationDirectory, _StartUpFile = None,
    else: 
 
       _ClonedMachine._m_disk_file = find_snapshot(_ClonedMachine)
+
+      _CollectionNumber = get_number()
+
+      _Command = "mkdir " + "\"" + "/home/jarret/Virtual Machines/collected/virtual_machine" + str(_CollectionNumber) + "\""
+
+      _ClonedMachine._m_collection = "/home/jarret/Virtual Machines/collected/virtual_machine" + str(_CollectionNumber)
+
+      print _Command
+
+      os.system(_Command)
 
       _ClonedMachine() # if the machine is created then just run it
 
