@@ -3,36 +3,37 @@
 ;
 ; Author: Jarret Shook
 ;
-; Module: main.asm
+; Module: hash_table.asm
 ;
 ; Modifications:
 ;
-; 27-April-13: Version 1.0: Last updated
-; 27-April-13: Version 1.0: Created
+; 20-May-13: Version 1.0: Last Updated 
+; 20-May-13: Version 1.0: Created
 ;
 ; Timeperiod: ev6
 ;
-; Assembler: nasm -f elf64 main.asm 
-; ld -o main main.asm
+; Assembler: nasm -f elf64 hash_table.asm
+; ld -o io hash_table.asm
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "avl_tree.asm"
-%include "string.asm"
-%include "util.asm"
+%ifndef __HASH_TABLE_ASM__
+%define __HASH_TABLE_ASM__
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section .data
 
-intro_message  db '////////////////////////////////////////////////////////////////////////////////', 0Ah, '////////////////////////////////////////////////////////////////////////////////', 0Ah, '//////////////////////////// Mustang Search Engine /////////////////////////////', 0Ah, '////////////////////////////////////////////////////////////////////////////////', 0Ah, '////////////////////////////////////////////////////////////////////////////////', 0Ah, 0
+; Nothing to define
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section .bss
+
+; Nothing reserved
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -41,20 +42,19 @@ section .text
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; global procudures
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-global _start
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; Procedure: _start
+; Procedure: create_hash_table
 ;
 ; Arguements:
 ;
-;     VOID
+;     EAX: reserved size of the hash_table
+;
+; Uses:
+;
+;     EAX
+;     EBX
+;     ECX
+;     EDX
 ;
 ; Returns:
 ;
@@ -63,21 +63,83 @@ global _start
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-_start:
+create_hash_table:
 
-         call  user_interface_start
+         mov   ecx, eax          ; save the size
+
+         mov   eax, 32 * 6       ; size of a hash_table structure
+                                 ; 0: array
+                                 ; 1: size
+                                 ; 2: capacity
+                                 ; 3: collisions
+                                 ; 4: pointer to the first bucket
+                                 ; 5: pointer to the last bucket
+
+         push  rcx
+
+         call  alloc
+
+         pop   rcx
+
+         mov   ebx, eax          ; save eax
+
+         mov   eax, ecx
+
+         push  rbx
+
+         push  rcx
+
+         call  create_array
+
+         pop   rcx
+
+         pop   rbx
+
+         mov   [ebx], eax
+
+         mov   [ebx + 4], 0      ; size starts at 0
+
+         mov   [ebx + 8], ecx    ; capacity is the size of the array
+
+         mov   [ebx + 12], 0     ; first pointer is null
+
+         mov   [ebx + 16], 0     ; last pointer is null
+
+         mov   eax, 0
+
+         mov   ebx, ecx
+
+         mov   ecx, [ebx]
+
+         call  mem_set
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Procedure: insert_hash_table
+;
+; Arguements:
+;
+;     EAX: hash_table structure
+;     EBX: pointer to a string
+;
+; Uses:
+;
+;     EAX
+;     EBX
+;     ECX
+;     EDX
+;
+; Returns:
+;
+;     VOID
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-user_interface_start:
 
-         mov   ecx, intro_message
 
-         call  str_len
+%endif   ; __HASH_TABLE_ASM__
 
-         mov   edx, eax
-
-         call  print_str
-   
-         call  _system_exit_
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -53,6 +53,9 @@ section .text
 ;
 ; Arguements:
 ;
+;     const char*: pointer to an array of characters (c-string) on the stack
+;     const char*: pointer to an array of characters (c-string) on the stack
+;
 ;     EBX: pointer to an array of characters (c-string)
 ;     ECX: pointer to a second array of characters
 ;
@@ -86,6 +89,8 @@ cmp_ret:
          pop   rcx               ; get the origional string
    
          pop   rbx               ; get the second origional string
+
+         pop   rbp
 
          ret
 
@@ -161,6 +166,7 @@ ret_greater:
 ;
 ;     EBX: offset of a string
 ;     ECX: memory location to be copied into
+;     EDX: size of string (optional) - enter -1 if not being used
 ;
 ; Uses:
 ;
@@ -178,7 +184,11 @@ ret_greater:
 
 str_cpy:
 
-         jmp   cpy_init          ; entry point 
+         cmp   edx, -1           ; is edx -1?
+
+         je    cpy_init          ; entry point 
+
+         jmp   cpy_size_init     ; entry point with size
 
 cpy_ln:  cmp   [ebx], byte 0     ; null terminator?
 
@@ -192,7 +202,25 @@ cpy_ln:  cmp   [ebx], byte 0     ; null terminator?
 
          add   ecx, 1            ; increment the second pointer
 
-         jmp   str_cpy           ; continue   
+         jmp   cpy_ln            ; continue   
+
+cpy_ln_size:
+
+         cmp   edx, 0            ; size met?
+
+         je    ret_cpy_size      ; if equal return
+
+         mov   eax, [ebx]        ; copy into the register
+
+         mov   [ecx], eax        ; copy it into the memory location
+
+         add   ebx, 1            ; increment the pointer
+
+         add   ecx, 1            ; increment the second pointer
+
+         dec   edx, 1            ; lower the size by 1
+
+         jmp   cpy_ln_size:
 
 cpy_init:
 
@@ -202,11 +230,31 @@ cpy_init:
 
          jmp   cpy_ln            ; jump back
 
+cpy_size_init:
+
+         push  rbx               ; save the string
+
+         push  rcx               ; save the memory location
+
+         push  rdx               ; save the size
+
+         jmp   cpy_ln_size       ; jump back
+
 ret_cpy:
 
          pop   rbx               ; pop rbx back
 
          pop   rcx               ; pop rcx back
+
+         ret
+
+ret_cpy_size:
+
+         pop   rdx               ; return the size
+
+         pop   rbx
+
+         pop   rcx
 
          ret
 
@@ -250,7 +298,7 @@ begin_str_len_loop:
 
 end_str_len_loop:
 
-         add   eax, 1                     ; plus null terminator
+         add   eax, 1
 
          pop   rcx                        ; restore the origional string
 
