@@ -4,7 +4,7 @@
 
          b     start             @ do not execute the data
 
-string:  .asciz "Hello world"    @ null terminated string
+string:  .asciz "String 1"       @ null terminated string
    
          .equ  null, 0           @ null = 0   
 
@@ -13,12 +13,8 @@ string:  .asciz "Hello world"    @ null terminated string
 
 start:
    
-         mov   r0, #100
+         mov   r0, #string
 
-         str   sp, [r0]
-
-         mov   r0, #0
-
-         ldr   sp, r0
+         b     str_len
 
 stop:    b     stop              @ infinite loop
