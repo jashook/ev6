@@ -67,7 +67,7 @@ zero_out_stack:
 init_stack:
 
          mov   r4, r0            @ r4 stores the end of .bss and top of the stack
-         ldr   sp, =0xA4000000
+         ldr   sp, =0xA4002000   @ stack is 68MB
 
          bl    arm_main
 

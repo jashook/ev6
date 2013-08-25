@@ -53,16 +53,30 @@ page_init:
 
 simple_partitioning_init:
 
-         @ Initializes fixed partitions of 4MB each
+         @ Initializes fixed partitions of 4KB each
          @ uses r1 to determine how many partitions
 
-partition_size:   #0x00400000
-
-         @ use registers to store old values because the stack has not been set up
+partition_size:   #0x00001000
 
          mov   r3, r0
 
-         
+         mov   r5, #0            @ zero byte
+
+start_partition:
+
+         mov   r4, #0x00001000   @ 4,096 bytes
+
+continue_partition:
+
+         subs  r4, #1
+
+         strb  r5, [r0], #1   @ r0 = *(r5++)
+
+         bne   continue_partition
+
+         subs  r1, #0x00001000
+
+         bne   start_partition
          
          mov   pc, lr
 

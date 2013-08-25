@@ -14,6 +14,7 @@ SECTIONS {
          .data : AT (flash_sdata) {
                * (.data)
          }
+         . = 0xA0001000;
          ram_edata = .;
          data_size = ram_edata - ram_sdata;
 
@@ -21,6 +22,7 @@ SECTIONS {
          .bss : {
               * (.bss);
          }
+         . = 0xA0002000;
          ebss = .;
          bss_size = ebss - sbss;
 }
