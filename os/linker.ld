@@ -1,5 +1,5 @@
 SECTIONS {
-         . = 0x00000000;
+         . = 0x00000800;
          .text : {
                * (vectors);
                * (.text);
