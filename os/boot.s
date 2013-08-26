@@ -15,7 +15,7 @@ fiq:     b     fiq
 .text
 
 memory_start:  #0xA0000000
-memory_size:   #0x04000000
+memory_size:   #0x02000000       @ 256MB -- Current amount of usable RAM if half is used by GPU
 
 start:
          
