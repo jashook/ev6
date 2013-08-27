@@ -77,7 +77,7 @@ wait_read:
 
       add   r0, r0, r1           @ make a 32 bit "letter" to send
 
-      str   r0, [r2 #20]         @ write the "letter"
+      str   r0, [r2, #20]        @ write the "letter"
 
       mov   r0, #1               @ success
 
