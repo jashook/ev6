@@ -20,6 +20,14 @@
 
 /* ************************************************************************** */
 /* ************************************************************************** */
+
+.include "system_video.s"
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/* ************************************************************************** */
 /* Function: arm_main                                                         */
 /*                                                                            */
 /* Parameters:                                                                */
@@ -39,11 +47,10 @@
 
 arm_main:
 
-         bl    init_video        @ set up the framebuffer and start printing to the screen
+         @bl    init_video        @ set up the framebuffer and start printing to the screen
 
-         bl    init_processes    @ set up the process table and start process assignment
+        @ bl    init_processes    @ set up the process table and start process assignment
 
-         bl    
 
          mov   pc, lr
 
